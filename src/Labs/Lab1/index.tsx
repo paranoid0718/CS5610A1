@@ -1,6 +1,12 @@
 export default function Lab1() {
   return (
+    
     <div id="wd-lab1">
+        <h1>TONGXIAO ZHAO SEC 01 Summer 2 2025</h1>
+        <ul>
+  <li><a href="https://github.com/paranoid0718/CS5610A1">GitHub repository</a></li>
+</ul>
+
         <h2>Lab 1</h2>
         <h3>HTML Examples</h3>
         <div id="wd-h-tag">
