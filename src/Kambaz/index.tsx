@@ -3,8 +3,6 @@ import Account from "./Account";
 import Dashboard from "./Dashboard";
 import KambazNavigation from "./Navigation";
 import Courses from "./Course";
-import Course1 from "./Course/Course1"
-import Course2 from "./Course/Course2"
 import "./styles.css";
 export default function Kambaz() {
   return (
