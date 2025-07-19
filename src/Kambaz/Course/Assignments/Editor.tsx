@@ -1,18 +1,27 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
+import { Link, useParams } from "react-router-dom";
+import * as db from "../../Database";
+
+
 
 export default function AssignmentEditor() {
+  const {aid} = useParams()
+  const {cid} = useParams()
+  const assignments = db.assignments
+
+  
   return (
-    <div>
-    <div id="wd-assignments-editor">
+  <div>
+    
+      {assignments.filter((assignment: any) => assignment.course === cid && assignment._id === aid).map((assignment:any) => ( <div>   
   <Form>
    <Form.Group  className="mb-3">
-     <Form.Label > Assignmentt Name</Form.Label>
-       <Form.Control type="text" placeholder="A1" className="mb-3"/>
-       <Form.Control as="textarea" rows = {4} placeholder="The assignment is available online. Submit a link to the landing page of your Web application running on Netlify. The landing page should include the following: your full name and section Links to each of the lab assignments Link to the Kanbas application
-Links to all relevant source code repositories. The Kanbas application should include a link to navigate back to the landing page." />
+     <Form.Label > {assignment?.title}</Form.Label>
+       <Form.Control type="text" placeholder={assignment?._id} className="mb-3"/>
+       <Form.Control as="textarea" rows = {4} placeholder={assignment?.description} />
    </Form.Group>
    <Form.Group as={Row} className="mb-3">
-     <Form.Label column sm={2}> Points </Form.Label>
+     <Form.Label column sm={2}> {assignment?.points} </Form.Label>
      <Col sm={10}>
        <Form.Control type="password" placeholder="100" />
      </Col>
@@ -95,18 +104,18 @@ Links to all relevant source code repositories. The Kanbas application should in
     <Form.Label> Assign to </Form.Label>
     <Form.Control type="text" placeholder="" className="mb-3"/>
         <Form.Label> Due </Form.Label>
-    <Form.Control type="date"  defaultValue="2025-05-13" className="mb-3"/>
+    <Form.Control type="date"  defaultValue={assignment?.dueDate} className="mb-3"/>
     <Form.Group as={Row} className="mb-3">
       <Col sm = {6}>
           <Form.Group  className="mb-3">
         <Form.Label> Available From </Form.Label>
-    <Form.Control type="date"  defaultValue="2025-05-13"/>
+    <Form.Control type="date"  defaultValue={assignment?.availableDate}/>
     </Form.Group>
       </Col>
             <Col sm={6}>
           <Form.Group  className="mb-3">
         <Form.Label> Until </Form.Label>
-    <Form.Control type="date"  defaultValue="2025-05-13"/>
+    <Form.Control type="date"/>
     </Form.Group>
       </Col>
     </Form.Group>
@@ -117,15 +126,21 @@ Links to all relevant source code repositories. The Kanbas application should in
    </Form.Group>
   </Form>
 </div>
+))
+}
 <hr/>
-    <div className="float-end">
-      <Button variant="secondary" className="me-2">
-        Cancel
-      </Button>
-      <Button variant="danger">
-        Save
-      </Button>
-    </div>
+<div className="float-end">
+<Link to={`/courses/${cid}/assignments`} className="me-2">
+  <Button variant="secondary">
+    Cancel
+  </Button>
+</Link>
+<Link to={`/courses/${cid}/assignments`} className="me-2">
+  <Button variant="danger">
+    Save
+  </Button>
+</Link>
+</div>
   </div>
   );
 }
