@@ -1,29 +1,66 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { Link, useParams } from "react-router-dom";
-import * as db from "../../Database";
-
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addAssignment, updateAssignment } from "./reducer"; 
+import { v4 as uuidv4 } from "uuid";
 
 
 export default function AssignmentEditor() {
   const {aid} = useParams()
   const {cid} = useParams()
-  const assignments = db.assignments
+  const {assignments} = useSelector((state: any) => state.assignmentsReducer);
+
+  const [assignment, setAssignment] = useState({
+    _id: uuidv4(),
+    title: "",
+    description: "",
+    points: 100,
+    dueDate: "",
+    availableDate: "",
+    availableUntil: "",
+    course: cid,
+  });
+
+  useEffect(() => {
+    if (aid !== "new") {
+      const existing = assignments.find((a: any) => a._id === aid && a.course === cid);
+      if (existing) setAssignment(existing);
+    }
+  }, [aid, cid, assignments]);
+;
+
+const dispatch = useDispatch()
+const navigate = useNavigate()
+const handleSave = () => {
+  if (aid === "new") {
+        const newAssignment = {
+      ...assignment,
+      _id: Date.now().toString(),
+    };
+    dispatch(addAssignment(newAssignment));
+  } else {
+    dispatch(updateAssignment(assignment));
+  }
+  navigate(`/Kambaz/courses/${cid}/Assignments`);
+};
 
   
   return (
   <div>
     
-      {assignments.filter((assignment: any) => assignment.course === cid && assignment._id === aid).map((assignment:any) => ( <div>   
+       <div>   
   <Form>
    <Form.Group  className="mb-3">
      <Form.Label > {assignment?.title}</Form.Label>
-       <Form.Control type="text" placeholder={assignment?._id} className="mb-3"/>
-       <Form.Control as="textarea" rows = {4} placeholder={assignment?.description} />
+       <Form.Control type="text" placeholder={assignment?.title} onChange = {(e) => setAssignment({ ...assignment, title: e.target.value })} className="mb-3"/>
+       <Form.Control onChange={(e) => setAssignment({ ...assignment, description: e.target.value })}
+       as="textarea" rows = {4} placeholder={assignment?.description} />
    </Form.Group>
    <Form.Group as={Row} className="mb-3">
      <Form.Label column sm={2}> {assignment?.points} </Form.Label>
      <Col sm={10}>
-       <Form.Control type="password" placeholder="100" />
+       <Form.Control onChange={(e) => setAssignment({ ...assignment, points: Number(e.target.value) })} type="password" placeholder="100" />
      </Col>
    </Form.Group>
    <fieldset>
@@ -104,18 +141,21 @@ export default function AssignmentEditor() {
     <Form.Label> Assign to </Form.Label>
     <Form.Control type="text" placeholder="" className="mb-3"/>
         <Form.Label> Due </Form.Label>
-    <Form.Control type="date"  defaultValue={assignment?.dueDate} className="mb-3"/>
+    <Form.Control type="date"  defaultValue={assignment?.dueDate} className="mb-3"
+    onChange={(e) => setAssignment({ ...assignment, dueDate: e.target.value })}/>
     <Form.Group as={Row} className="mb-3">
       <Col sm = {6}>
           <Form.Group  className="mb-3">
         <Form.Label> Available From </Form.Label>
-    <Form.Control type="date"  defaultValue={assignment?.availableDate}/>
+    <Form.Control type="date"  defaultValue={assignment?.availableDate}
+    onChange={(e) => setAssignment({ ...assignment, availableDate: e.target.value })}/>
     </Form.Group>
       </Col>
             <Col sm={6}>
           <Form.Group  className="mb-3">
         <Form.Label> Until </Form.Label>
-    <Form.Control type="date"/>
+    <Form.Control type="date" defaultValue={assignment?.availableUntil}
+    onChange={(e) => setAssignment({ ...assignment, availableUntil: e.target.value })}/>
     </Form.Group>
       </Col>
     </Form.Group>
@@ -126,20 +166,17 @@ export default function AssignmentEditor() {
    </Form.Group>
   </Form>
 </div>
-))
-}
+
 <hr/>
-<div className="float-end">
-<Link to={`/courses/${cid}/assignments`} className="me-2">
+<div className="float-end"> 
+<Link to={`/Kambaz/courses/${cid}/Assignments`} className="me-2">
   <Button variant="secondary">
     Cancel
   </Button>
 </Link>
-<Link to={`/courses/${cid}/assignments`} className="me-2">
-  <Button variant="danger">
+  <Button variant="danger" onClick={() => handleSave()}>
     Save
   </Button>
-</Link>
 </div>
   </div>
   );
