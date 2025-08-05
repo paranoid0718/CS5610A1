@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAssignment, updateAssignment } from "./reducer"; 
 import { v4 as uuidv4 } from "uuid";
+import * as coursesClient from "../client";
+import * as assignmentClient from "./client"
 
 
 export default function AssignmentEditor() {
   const {aid} = useParams()
   const {cid} = useParams()
+  const dispatch = useDispatch()
+const navigate = useNavigate()
   const {assignments} = useSelector((state: any) => state.assignmentsReducer);
 
   const [assignment, setAssignment] = useState({
@@ -29,21 +33,26 @@ export default function AssignmentEditor() {
     }
   }, [aid, cid, assignments]);
 ;
-
-const dispatch = useDispatch()
-const navigate = useNavigate()
-const handleSave = () => {
-  if (aid === "new") {
-        const newAssignment = {
-      ...assignment,
-      _id: Date.now().toString(),
-    };
+  const createAssignmentForCourse = () => {
+    if (!cid) return;
+    const newAssignment = coursesClient.createAssignmentForCourse(cid, assignment);
     dispatch(addAssignment(newAssignment));
-  } else {
+  };
+  const saveAssignment = async (assignment: any) => {
+    await assignmentClient.updateAssignment(assignment);
     dispatch(updateAssignment(assignment));
+  };
+
+
+const handleSave = async() => {
+  if (aid === "new") {
+    await createAssignmentForCourse();
+  } else {
+    await saveAssignment(assignment);
   }
   navigate(`/Kambaz/courses/${cid}/Assignments`);
 };
+
 
   
   return (

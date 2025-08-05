@@ -8,7 +8,12 @@ export default function LessonControlButtons({ moduleId, deleteModule,editModule
   return (
     <div className="float-end">
       <FaPencil onClick={() => editModule(moduleId)} className="text-primary me-3" />
-      <FaTrash onClick={() => deleteModule(moduleId)} />
+      <FaTrash 
+   onClick={(e) => {
+      e.stopPropagation();
+      console.log("🟢 Trash icon clicked", moduleId);
+      deleteModule(moduleId);
+   }}/>
       <GreenCheckmark />
       <IoEllipsisVertical className="fs-4" />
           </div> );

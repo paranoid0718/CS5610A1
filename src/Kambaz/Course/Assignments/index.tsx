@@ -5,13 +5,28 @@ import { LuNotebookPen } from "react-icons/lu";
 import { useNavigate, useParams } from "react-router";
 import AssignmentControlButtons from "./AssignmentControlButtons"
 import { useDispatch, useSelector } from "react-redux";
-import { deleteAssignment } from "./reducer";
-
+import { setAssignments, addAssignment, deleteAssignment, updateAssignment} from "./reducer";
+import * as coursesClient from "../client";
+import { useEffect } from "react";
+import * as AssignmentClient from "./client"
 export default function Assignments() {
   const navigate = useNavigate();
   const { cid } = useParams();
   const dispatch = useDispatch()
   const {assignments} = useSelector((state: any) => state.assignmentsReducer);
+    const fetchAssignments = async () => {
+    const assignments = await coursesClient.findAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(assignments));
+  };
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+    const removeAssignment = async (AssignmentId: string) => {
+    await AssignmentClient.deleteAssignment(AssignmentId);
+    dispatch(deleteAssignment(AssignmentId));
+  };
+
+
   return (
     <div>
           <div className="my-3">
@@ -50,7 +65,7 @@ export default function Assignments() {
             {assignment.title}
         </a> 
             <span> Multiple Modules | <strong>Not available until</strong> {assignment.availableDate} | <strong>Due</strong> {assignment.dueDate} | <strong>Points:</strong>{assignment.points} </span><AssignmentControlButtons/>
-                    <FaTrash onClick={() => dispatch(deleteAssignment(assignment._id))} className="float-end"/>    </ListGroup.Item>))
+                    <FaTrash onClick={() => removeAssignment(assignment._id)} className="float-end"/>    </ListGroup.Item>))
       
       }
         </ListGroup>

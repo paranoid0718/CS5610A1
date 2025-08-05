@@ -1,28 +1,18 @@
 import { Button, Card, Col, FormControl, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addCourse, updateCourse, deleteCourse } from "./reducer";
 import { enroll, unenroll} from "./Enrollments/reducer";
 import { useState } from "react";
+import * as userClient from "./Account/client";
 
-export default function Dashboard()
+export default function Dashboard({ enrollments,setEnrollments, courses, course, setCourse, allCourses, addNewCourse, deleteCourse, updateCourse, enrollUserInCourse, unenrollUserFromCourse,}: { enrollments:any[],setEnrollments: (value: any[]) => void, courses: any[], course: any, setCourse: (value: any | ((prevState: any) => any)) => void, allCourses: any[], addNewCourse: () => void, deleteCourse: (courseId: string) => void, updateCourse: () => void, enrollUserInCourse: (courseId: string) => void, unenrollUserFromCourse: (courseId: string) => void;})
   {
-  const { courses } = useSelector((state: any) => state.coursesReducer);
-  const [course, setCourse] = useState<any>({
-    _id: "1234", name: "New Course", number: "New Number",
-    startDate: "2023-09-10", endDate: "2023-12-15", description: "New Description",
-  });
   const dispatch = useDispatch()
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-  const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
   const [showAllCourses, setShowAllCourses] = useState(false);
   const visibleCourses = showAllCourses
-  ? courses
-  : courses.filter((c: any) =>
-      enrollments.some(
-        (e: any) => e.user === currentUser._id && e.course === c._id
-      )
-    );
+  ? allCourses
+  : courses;
     const isFaculty = currentUser.role == "FACULTY"
   return (
     <div id="wd-dashboard">
@@ -31,9 +21,9 @@ export default function Dashboard()
        <h5>New Course
           <button className="btn btn-primary float-end"
                   id="wd-add-new-course-click"
-                  onClick={() => dispatch(addCourse(course))} > Add </button>
+                  onClick={() => addNewCourse()} > Add </button>
                           <button className="btn btn-warning float-end me-2"
-                onClick={() => dispatch(updateCourse(course))} id="wd-update-course-click">
+                onClick={() => updateCourse()} id="wd-update-course-click">
           Update
         </button>
       </h5><hr />
@@ -44,7 +34,7 @@ export default function Dashboard()
              </div>}
 <Row className="mb-3 align-items-center">
   <Col xs={8}>
-    <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
+    <h2 id="wd-dashboard-published">Published Courses ({showAllCourses? allCourses.length: courses.length})</h2>
   </Col>
   <Col xs={4} className="text-end">
     <Button
@@ -79,7 +69,7 @@ return (
                     <Button variant="primary"> Go </Button>
                     {isFaculty && <Button variant="danger" onClick={(event) => {
                        event.preventDefault();
-                      dispatch(deleteCourse(c._id));
+                      deleteCourse(c._id);
                       }} className="btn btn-danger float-end"
                     id="wd-delete-course-click"> Delete </Button>}
 
@@ -88,9 +78,11 @@ return (
                           <Button
                             variant="danger"
                             className="float-end"
-                            onClick={(e) => {
+                            onClick={async(e) => {
                               e.preventDefault();
                               dispatch(unenroll({ user: currentUser._id, course: c._id }));
+                              await unenrollUserFromCourse(c._id); 
+                              console.log("✅ Unenroll request sent");
                             }}
                           >
                             Unenroll
@@ -99,9 +91,12 @@ return (
                           <Button
                             variant="success"
                             className="float-end"
-                            onClick={(e) => {
+                            onClick={async(e) => {
                               e.preventDefault();
-                              dispatch(enroll({ user: currentUser._id, course: c._id }));
+                                  dispatch(enroll({ user: currentUser._id, course: c._id }));
+                              enrollUserInCourse(c._id)
+                                    const updated = await userClient.fetchEnrollments();
+      setEnrollments(updated);
                             }}
                           >
                             Enroll
