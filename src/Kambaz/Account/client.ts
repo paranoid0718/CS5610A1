@@ -1,7 +1,6 @@
 import axios from "axios";
 const axiosWithCredentials = axios.create({ withCredentials: true });
 export const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
-console.log("🔍 HTTP_SERVER from env:", import.meta.env.VITE_HTTP_SERVER);
 export const USERS_API = `${HTTP_SERVER}/api/users`;
 
 export const signin = async (credentials: any) => {
