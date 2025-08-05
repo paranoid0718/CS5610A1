@@ -47,7 +47,7 @@ const fetchAllCourses = async () => {
     setCourses([...courses, newCourse]);
   };
     const deleteCourse = async (courseId: string) => {
-    const status = await courseClient.deleteCourse(courseId);
+    await courseClient.deleteCourse(courseId);
     setCourses(courses.filter((course) => course._id !== courseId));
 };
   const updateCourse = async () => {
@@ -60,7 +60,6 @@ const fetchAllCourses = async () => {
 
   const enrollUserInCourse = async (courseId:string) => {
       const updatedCourses = await userClient.enrollUserInCourse(courseId);
-      console.log("✅ 当前用户课程：", courses); 
       setCourses(updatedCourses);
   }
   const unenrollUserFromCourse = async (courseId: string) => {

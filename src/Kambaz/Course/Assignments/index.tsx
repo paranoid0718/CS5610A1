@@ -5,7 +5,7 @@ import { LuNotebookPen } from "react-icons/lu";
 import { useNavigate, useParams } from "react-router";
 import AssignmentControlButtons from "./AssignmentControlButtons"
 import { useDispatch, useSelector } from "react-redux";
-import { setAssignments, addAssignment, deleteAssignment, updateAssignment} from "./reducer";
+import { setAssignments, deleteAssignment} from "./reducer";
 import * as coursesClient from "../client";
 import { useEffect } from "react";
 import * as AssignmentClient from "./client"
