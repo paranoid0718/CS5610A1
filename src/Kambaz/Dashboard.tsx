@@ -82,7 +82,6 @@ return (
                               e.preventDefault();
                               dispatch(unenroll({ user: currentUser._id, course: c._id }));
                               await unenrollUserFromCourse(c._id); 
-                              console.log("✅ Unenroll request sent");
                             }}
                           >
                             Unenroll
@@ -94,7 +93,7 @@ return (
                             onClick={async(e) => {
                               e.preventDefault();
                                   dispatch(enroll({ user: currentUser._id, course: c._id }));
-                              enrollUserInCourse(c._id)
+                              await enrollUserInCourse(c._id)
                                     const updated = await userClient.fetchEnrollments();
       setEnrollments(updated);
                             }}
