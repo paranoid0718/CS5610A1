@@ -49,14 +49,19 @@ const fetchAllCourses = async () => {
     const deleteCourse = async (courseId: string) => {
     await courseClient.deleteCourse(courseId);
     setCourses(courses.filter((course) => course._id !== courseId));
+    setAllCourses(allCourses.filter((course) => course._id !== courseId));
 };
   const updateCourse = async () => {
     await courseClient.updateCourse(course);
     setCourses(courses.map((c) => {
         if (c._id === course._id) { return course; }
         else { return c; }
-    })
-  );};
+    }));
+    setAllCourses(allCourses.map((c) => {
+        if (c._id === course._id) { return course; }
+        else { return c; }
+    }))
+    ;};
 
   const enrollUserInCourse = async (courseId:string) => {
       const updatedCourses = await userClient.enrollUserInCourse(courseId);
