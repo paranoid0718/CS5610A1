@@ -45,6 +45,15 @@ export const enrollUserInCourse = async (courseId: string) => {
     return response.data
 }
 
+export const findAllUsers = async () => {
+  const response = await axiosWithCredentials.get(USERS_API);
+  return response.data;
+};
+export const findUsersByRole = async (role: string) => {
+  const response = await
+    axios.get(`${USERS_API}?role=${role}`);
+  return response.data;
+};
 
 export const unenrollUserFromCourse = async (courseId: string) => {
   const url = `${HTTP_SERVER}/api/users/current/courses/unenroll`;
@@ -59,4 +68,20 @@ export const fetchEnrollments = async () => {
   } catch (error) {
     return [];
   }
+};
+export const findUsersByPartialName = async (name: string) => {
+  const response = await axios.get(`${USERS_API}?name=${name}`);
+  return response.data;
+};
+export const findUserById = async (id: string) => {
+  const response = await axios.get(`${USERS_API}/${id}`);
+  return response.data;
+};
+export const deleteUser = async (userId: string) => {
+  const response = await axios.delete( `${USERS_API}/${userId}` );
+  return response.data;
+};
+export const createUser = async (user: any) => {
+  const response = await axios.post(`${USERS_API}`, user);
+  return response.data;
 };
