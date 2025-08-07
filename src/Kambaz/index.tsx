@@ -41,22 +41,26 @@ const fetchAllCourses = async () => {
     startDate: "2023-09-10", endDate: "2023-12-15", description: "New Description",
   });
   const addNewCourse = async () => {
-    const newCourse = await userClient.createCourse(course);
-    console.log(newCourse)
+    const newCourse = await courseClient.createCourse(course);
     setAllCourses([ ...allCourses, newCourse ]);
-    setCourses([...courses, newCourse]);
+    // setCourses([...courses, newCourse]);
   };
     const deleteCourse = async (courseId: string) => {
     await courseClient.deleteCourse(courseId);
     setCourses(courses.filter((course) => course._id !== courseId));
+    setAllCourses(allCourses.filter((course) => course._id !== courseId));
 };
   const updateCourse = async () => {
     await courseClient.updateCourse(course);
     setCourses(courses.map((c) => {
         if (c._id === course._id) { return course; }
         else { return c; }
-    })
-  );};
+    }))
+    setAllCourses(allCourses.map((c) => {
+        if (c._id === course._id) { return course; }
+        else { return c; }
+    }))
+    ;};
 
   const enrollUserInCourse = async (courseId:string) => {
       const updatedCourses = await userClient.enrollUserInCourse(courseId);

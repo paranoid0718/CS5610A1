@@ -1,12 +1,13 @@
 import axios from "axios";
+const axiosWithCredentials = axios.create({ withCredentials: true });
 export const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
 export const COURSES_API = `${HTTP_SERVER}/api/courses`;
 export const deleteCourse = async (id: string) => {
-  const { data } = await axios.delete(`${COURSES_API}/${id}`);
+  const { data } = await axiosWithCredentials.delete(`${COURSES_API}/${id}`);
   return data;
 };
 export const updateCourse = async (course: any) => {
-  const { data } = await axios.put(`${COURSES_API}/${course._id}`, course);
+  const { data } = await axiosWithCredentials.put(`${COURSES_API}/${course._id}`, course);
   return data;
 };
 export const findModulesForCourse = async (courseId: string) => {
@@ -32,6 +33,15 @@ export const createAssignmentForCourse = async (courseId: string, assignment: an
     assignment
   );
   return response.data;
+};
+export const fetchAllCourses = async () => {
+ const { data } = await axiosWithCredentials.get(COURSES_API);
+ return data;
+};
+
+export const createCourse = async (course: any) => {
+ const { data } = await axiosWithCredentials.post(COURSES_API, course);
+ return data;
 };
 
 
