@@ -15,32 +15,48 @@ export default function Modules() {
     const [moduleName, setModuleName] = useState("");
   const {cid} = useParams();
     const fetchModules = async () => {
-    const modules = await coursesClient.findModulesForCourse(cid as string);
+    const modules = await coursesClient.findModulesForCourse(cid! as string);
     dispatch(setModules(modules));
   };
   useEffect(() => {
     fetchModules();
-  }, []);
-  const createModuleForCourse = async () => {
-    if (!cid) return;
-    const newModule = { name: moduleName, course: cid };
-    const module = await coursesClient.createModuleForCourse(cid, newModule);
-    dispatch(addModule(module));
-  };
-    const removeModule = async (moduleId: string) => {
-    const res = await modulesClient.deleteModule(moduleId);
-      console.log("Server response:", res);
-    dispatch(deleteModule(moduleId));
-  };
-  const saveModule = async (module: any) => {
-    await modulesClient.updateModule(module);
-    dispatch(updateModule(module));
-  };
+  }, [cid]);
+  // const createModuleForCourse = async () => {
+  //   if (!cid) return;
+  //   const newModule = { name: moduleName, course: cid };
+  //   const module = await coursesClient.createModuleForCourse(cid, newModule);
+  //   dispatch(addModule(module));
+  // };
+  //   const removeModule = async (moduleId: string) => {
+  //   const res = await modulesClient.deleteModule(moduleId);
+  //     console.log("Server response:", res);
+  //   dispatch(deleteModule(moduleId));
+  // };
+  // const saveModule = async (module: any) => {
+  //   await modulesClient.updateModule(module);
+  //   dispatch(updateModule(module));
+  // };
+ const addModuleHandler = async () => {
+   const newModule = await coursesClient.createModuleForCourse(cid!, {
+     name: moduleName,
+     course: cid,
+   });
+   dispatch(addModule(newModule));
+   setModuleName("");
+ };
+ const deleteModuleHandler = async (moduleId: string) => {
+   await modulesClient.deleteModule(moduleId);
+   dispatch(deleteModule(moduleId));
+ };
+ const updateModuleHandler = async (module: any) => {
+   await modulesClient.updateModule(module);
+   dispatch(updateModule(module));
+ };
 
 
   return (
     <div>
-  <ModulesControls setModuleName={setModuleName} moduleName={moduleName} addModule={createModuleForCourse}/><br /><br /><br /><br />
+  <ModulesControls setModuleName={setModuleName} moduleName={moduleName} addModule={addModuleHandler}/><br /><br /><br /><br />
       <ListGroup id="wd-modules" className="rounded-0">
         {modules
           .map((module: any) => (
@@ -53,18 +69,18 @@ export default function Modules() {
                onChange={(e) => dispatch(updateModule({ ...module, name: e.target.value }))}
                onKeyDown={(e) => {
                  if (e.key === "Enter") {
-                   saveModule({ ...module, editing: false });
+                   updateModuleHandler({ ...module, editing: false });
                  }
                }}
                defaultValue={module.name}/>
       )}
-               <LessonControlButtons deleteModule={(moduleId) => removeModule(moduleId)} moduleId={module._id} editModule={(moduleId) => dispatch(editModule(moduleId))}/>
+               <LessonControlButtons deleteModule={(moduleId) => deleteModuleHandler(moduleId)} moduleId={module._id} editModule={(moduleId) => dispatch(editModule(moduleId))}/>
             </div>
             {module.lessons && (
               <ListGroup className="wd-lessons rounded-0">
                 {module.lessons.map((lesson: any) => (
                   <ListGroup.Item className="wd-lesson p-3 ps-1">
-                    <BsGripVertical className="me-2 fs-3" /> {lesson.name} <LessonControlButtons editModule = {editModule} deleteModule={(moduleId) => removeModule(moduleId)} moduleId={module._id} />
+                    <BsGripVertical className="me-2 fs-3" /> {lesson.name} <LessonControlButtons editModule = {editModule} deleteModule={(moduleId) => deleteModuleHandler(moduleId)} moduleId={module._id} />
                   </ListGroup.Item>
                 ))}</ListGroup>)}</ListGroup.Item>))}</ListGroup>
 </div>

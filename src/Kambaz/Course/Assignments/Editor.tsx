@@ -33,11 +33,12 @@ const navigate = useNavigate()
     }
   }, [aid, cid, assignments]);
 ;
-  const createAssignmentForCourse = () => {
+  const createAssignmentForCourse = async () => {
     if (!cid) return;
-    const newAssignment = coursesClient.createAssignmentForCourse(cid, assignment);
+    const newAssignment = await coursesClient.createAssignmentForCourse(cid, assignment);
     dispatch(addAssignment(newAssignment));
   };
+
   const saveAssignment = async (assignment: any) => {
     await assignmentClient.updateAssignment(assignment);
     dispatch(updateAssignment(assignment));

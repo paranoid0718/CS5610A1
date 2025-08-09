@@ -20,7 +20,7 @@ export default function Assignments() {
   };
   useEffect(() => {
     fetchAssignments();
-  }, []);
+  }, [cid]);
     const removeAssignment = async (AssignmentId: string) => {
     await AssignmentClient.deleteAssignment(AssignmentId);
     dispatch(deleteAssignment(AssignmentId));
