@@ -59,3 +59,18 @@ export const findUsersByPartialName = async (courseId:string, name: string) => {
   const response = await axios.get(`${COURSES_API}/${courseId}/users?name=${name}`);
   return response.data;
 };
+
+export const findQuizzesForCourse = async (courseId: string) => {
+  const { data } = await axiosWithCredentials.get(
+    `${COURSES_API}/${courseId}/quizzes`
+  );
+  return data;
+};
+
+export const createQuizForCourse = async (courseId: string, quiz: any) => {
+  const { data } = await axiosWithCredentials.post(
+    `${COURSES_API}/${courseId}/quizzes`,
+    quiz
+  );
+  return data;
+};
