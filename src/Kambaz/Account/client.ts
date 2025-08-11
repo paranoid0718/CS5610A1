@@ -1,5 +1,6 @@
 import axios from "axios";
 const axiosWithCredentials = axios.create({ withCredentials: true });
+console.log("VITE_HTTP_SERVER =", import.meta.env.VITE_HTTP_SERVER);
 export const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
 export const USERS_API = `${HTTP_SERVER}/api/users`;
 
