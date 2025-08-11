@@ -8,7 +8,7 @@ import * as quizzesClient from "./client";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuizzes, deleteQuiz, updateQuiz } from "./reducer";
 
-
+// questions waiting for adding
 export default function Quizzes() {
   const { cid } = useParams();
   const navigate = useNavigate();
