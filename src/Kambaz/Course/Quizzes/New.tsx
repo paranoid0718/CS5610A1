@@ -14,22 +14,23 @@ export default function QuizCreate() {
     title: "",
     description: "",
     course: cid ?? "",
-    type: "GRADED" as "GRADED" | "PRACTICE" | "GRADED_SURVEY" | "UNGRADED_SURVEY",
+    quizType: "GRADED" as "GRADED" | "PRACTICE" | "GRADED_SURVEY" | "UNGRADED_SURVEY",
     assignmentGroup: "ASSIGNMENTS" as "QUIZZES" | "EXAMS" | "ASSIGNMENTS" | "PROJECT",
     shuffleAnswers: false,
     timeLimitEnabled: false,
     timeLimit: 0,
     multipleAttempts: false,
-    attempts: 1,
-    showCorrectAnswersAt: null as string | null,
+    attemptsAllowed: 1,
+    showCorrectAnswers: null as string | null,
     accessCode: null as string | null,
     oneQuestionAtATime: true,
     webcamRequired: false,
-    lockQuestionsAfterAnswering: false,
+    lockAfterAnswering: false,
     availableDate: "",
     dueDate: "",
-    untilDate: "",
+    availableUntil: "",
     points: 0,
+    questionNumber: 0,
   });
 
   const handleSave = async () => {
@@ -72,9 +73,9 @@ export default function QuizCreate() {
         </Col>
         <Col md={5}>
           <Form.Select
-            value={quiz.type}
+            value={quiz.quizType}
             onChange={(e) =>
-              setQuiz({ ...quiz, type: e.target.value as any })
+              setQuiz({ ...quiz, quizType: e.target.value as any })
             }
           >
             <option value="GRADED">Graded Quiz</option>
@@ -158,7 +159,7 @@ export default function QuizCreate() {
               setQuiz({
                 ...quiz,
                 multipleAttempts: e.target.checked,
-                attempts: e.target.checked ? Math.max(quiz.attempts || 1, 1) : 1,
+                attemptsAllowed: e.target.checked ? Math.max(quiz.attemptsAllowed || 1, 1) : 1,
               })
             }
             className="mb-2"
@@ -203,9 +204,9 @@ export default function QuizCreate() {
                   <div className="text-muted mb-1">Until</div>
                   <Form.Control
                     type="date"
-                    value={quiz.untilDate || ""}
+                    value={quiz.availableUntil || ""}
                     onChange={(e) =>
-                      setQuiz({ ...quiz, untilDate: e.target.value })
+                      setQuiz({ ...quiz, availableUntil: e.target.value })
                     }
                   />
                 </Col>

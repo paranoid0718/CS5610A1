@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Col, FormControl, InputGroup, ListGroup, Row, Dropdown } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { BsGripVertical } from "react-icons/bs";
@@ -8,7 +8,6 @@ import * as quizzesClient from "./client";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuizzes, deleteQuiz, updateQuiz } from "./reducer";
 
-// questions waiting for adding
 export default function Quizzes() {
   const { cid } = useParams();
   const navigate = useNavigate();
@@ -31,19 +30,19 @@ export default function Quizzes() {
     loadQuizzes();
   }, [cid, dispatch]);
 
-  const filtered = useMemo(() => {
-    if (!keyword.trim()) return quizzes;
-    const k = keyword.trim().toLowerCase();
-    return quizzes.filter(
-      (q: any) =>
-        q.title?.toLowerCase().includes(k) ||
-        q.description?.toLowerCase().includes(k)
-    );
-  }, [quizzes, keyword]);
+const filtered =
+  !keyword.trim()
+    ? quizzes
+    : quizzes.filter((q: any) => {
+        const k = keyword.trim().toLowerCase();
+        return (
+          q.title?.toLowerCase().includes(k) ||
+          q.description?.toLowerCase().includes(k)
+        );
+      });
 
   const removeQuiz = async (qid: string) => {
     if (!qid) return;
-    if (!window.confirm("Delete this quiz?")) return;
     try {
       await quizzesClient.deleteQuiz(qid);
       dispatch(deleteQuiz(qid));
@@ -58,7 +57,7 @@ export default function Quizzes() {
       await quizzesClient.updateQuiz(updated);
       dispatch(updateQuiz(updated));
     } catch (e) {
-      console.error("Toggle publish failed:", e);
+      console.error(e);
     }
   };
 
@@ -137,12 +136,13 @@ export default function Quizzes() {
                     {q.points != null && (
                       <span className="me-2"><strong>Points:</strong> {q.points}</span>
                     )}
-                    {q.questionsCount != null && (
-                      <span className="me-2"><strong>Questions:</strong> {q.questionsCount}</span>
+                    {q.questionNumber != null && (
+                      <span className="me-2"><strong>Questions:</strong> {q.questionNumber}</span>
                     )}
                     {q.lastScore != null && (
                       <span className="me-2"><strong>Score:</strong> {q.lastScore}</span>
                     )}
+                    
                   </div>
                 </div>
                 <Dropdown align="end" className="ms-2">

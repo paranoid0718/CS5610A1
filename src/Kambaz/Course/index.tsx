@@ -10,6 +10,7 @@ import Quizzes from "./Quizzes";
 import QuizCreate from "./Quizzes/New";
 import QuizDetails from "./Quizzes/Details";
 import Editors from "./Quizzes/Editors"
+import QuizPreview from "./Quizzes/Preview";
 export default function Courses({ courses }: { courses: any[]; }) {
   const { cid } = useParams()
   const course = courses.find((course) => course._id === cid);
@@ -39,6 +40,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
               <Route path="/Grades" element={<h1>Grades</h1>} />
               <Route path="People" element={<Users/>}/>
               <Route path="Quizzes/:qid/Editors/*" element={<Editors /> }/>
+              <Route path="Quizzes/:qid/Preview" element={<QuizPreview />} />
             </Routes>
     </div>
     </div>

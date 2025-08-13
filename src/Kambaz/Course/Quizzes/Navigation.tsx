@@ -1,5 +1,5 @@
 import { Nav } from "react-bootstrap";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function QuizTabs() {
   const { cid, qid } = useParams();
@@ -10,7 +10,7 @@ export default function QuizTabs() {
       <Nav variant="tabs" className="mb-3">
         <Nav.Item>
           <Nav.Link onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/Editor`)}>
-            Editor
+            Details
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
@@ -19,7 +19,6 @@ export default function QuizTabs() {
           </Nav.Link>
         </Nav.Item>
       </Nav>
-      <Outlet />
     </div>
   );
 }

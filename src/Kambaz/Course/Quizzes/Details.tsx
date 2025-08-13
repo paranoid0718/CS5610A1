@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Button, Row, Col } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, Link } from "react-router-dom";
@@ -11,22 +11,20 @@ export default function QuizDetails() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { quizzes } = useSelector((state: any) => state.quizzesReducer);
-  const currentUser = useSelector((state: any) => state.accountReducer?.currentUser);
-  const role = currentUser?.role;
+  const currentUser = useSelector((state: any) => state.accountReducer.currentUser);
+  const role = currentUser.role;
   const isFaculty = role === "FACULTY";
 
-  const quiz: any = useMemo(
-    () => quizzes?.find((q: any) => q._id === qid),
-    [quizzes, qid]
-  );
+const quiz: any = quizzes?.find((q: any) => q._id === qid);
 
-  useEffect(() => {
-    const ensureQuiz = async () => {
+const fetchQuizzes = async () => {
       if (!cid || quiz) return;
       const data = await coursesClient.findQuizzesForCourse(cid);
       dispatch(setQuizzes(data));
     };
-    ensureQuiz();
+  useEffect(() => {
+
+    fetchQuizzes();
   }, [cid, quiz, dispatch]);
 
   if (!quiz) {
@@ -35,10 +33,36 @@ export default function QuizDetails() {
 
   return (
     <div>
+        <div className="ms-auto d-flex gap-2 justify-content-center">
+  {isFaculty ? (
+    <>
+
+      <Button
+        variant="outline-primary"
+        onClick={() =>
+          navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/Preview`)
+        }
+      >
+        Preview
+      </Button>
+    </>
+  ) : (
+    <Button
+      variant="danger"
+      onClick={() =>
+        navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/Take`)
+      }
+      disabled={!quiz.published}
+    >
+      Take Quiz
+    </Button>
+  )}
+
+</div>
       <div className="d-flex align-items-center mb-3">
         <h3 className="mb-0 me-3">{quiz.title}</h3>
         <div className="ms-auto d-flex gap-2">
-          {isFaculty ? (
+          {isFaculty &&
             <Button
               variant="secondary"
               onClick={() =>
@@ -47,17 +71,7 @@ export default function QuizDetails() {
             >
               Edit
             </Button>
-          ) : (
-            <Button
-              variant="danger"
-              onClick={() =>
-                navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/Take`)
-              }
-              disabled={!quiz.published}
-            >
-              Take Quiz
-            </Button>
-          )}
+}
           <Link to={`/Kambaz/Courses/${cid}/Quizzes`}>
             <Button variant="outline-secondary">Back</Button>
           </Link>
@@ -66,16 +80,12 @@ export default function QuizDetails() {
 
       <div
         className="p-4 mb-4"
-        style={{ border: "1px dashed #cfd4da", borderRadius: 8 }}
+        style={{ border: "1px #000000ff", }}
       >
         <Row className="gx-5 gy-2">
           <Col sm={5} className="text-end fw-semibold text-muted">Quiz Type</Col>
           <Col sm={7}>
-            {(quiz.quizType ?? "GRADED")
-              .replace("GRADED", "Graded Quiz")
-              .replace("PRACTICE", "Practice Quiz")
-              .replace("GRADED_SURVEY", "Graded Survey")
-              .replace("UNGRADED_SURVEY", "Ungraded Survey")}
+            {quiz.quizType}
           </Col>
 
           <Col sm={5} className="text-end fw-semibold text-muted">Points</Col>
@@ -104,6 +114,9 @@ export default function QuizDetails() {
 
           <Col sm={5} className="text-end fw-semibold text-muted">Lock Questions After Answering</Col>
           <Col sm={7}>{quiz.lockAfterAnswering ? "Yes" : "No"}</Col>
+
+        <Col sm={5} className="text-end fw-semibold text-muted">Question Number</Col>
+          <Col sm={7}>{quiz.questionNumber}</Col>
         </Row>
 
         <hr className="my-4" />

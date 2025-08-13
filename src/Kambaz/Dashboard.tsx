@@ -46,7 +46,7 @@ courses.map((c:any) => {
 return (
                     <Col className="wd-dashboard-course" style={{ width: "300px" }}>
               <Card>
-                <Link to={isFaculty? `/Kambaz/Courses/${c._id}/Home`: `/Kambaz/Dashboard/`}
+                <Link to={`/Kambaz/Courses/${c._id}/Home`}
                       className="wd-dashboard-course-link text-decoration-none text-dark" >
                   <Card.Img src="/images/reactjs.jpg" variant="top" width="100%" height={160} />
                   <Card.Body className="card-body">

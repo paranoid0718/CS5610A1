@@ -4,6 +4,8 @@ import { Button, Col, Form, Row, Card, Badge } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import * as quizzesClient from "./client";
 import { updateQuiz } from "./reducer";
+import * as coursesClient from "../client";
+import { setQuizzes } from "./reducer";
 
 export default function DetailsEditor() {
   const { cid, qid } = useParams();
@@ -15,7 +17,13 @@ export default function DetailsEditor() {
 
   const [quiz, setQuiz] = useState<any>(null);
 
+  const fetchQuizzes = async () => {
+        if (!cid || quiz) return;
+        const data = await coursesClient.findQuizzesForCourse(cid);
+        dispatch(setQuizzes(data));
+      };
   useEffect(() => {
+    fetchQuizzes();
     if (quizFromStore) {
       setQuiz(quizFromStore);
     }
@@ -55,7 +63,7 @@ export default function DetailsEditor() {
         <Col md={5}>
           <Form.Select
             value={quiz.quizType}
-            onChange={(e) => setQuiz({ ...quiz, type: e.target.value })}
+            onChange={(e) => setQuiz({ ...quiz, quizType: e.target.value })}
           >
             <option value="GRADED">Graded Quiz</option>
             <option value="PRACTICE">Practice Quiz</option>
@@ -109,13 +117,23 @@ export default function DetailsEditor() {
             />
             <span className="text-muted">Minutes</span>
           </div>
-
+            <div className="d-flex align-items-center gap-2 mb-2">
           <Form.Check
             type="checkbox"
             label="Allow Multiple Attempts"
             checked={quiz.multipleAttempts}
-            onChange={(e) => setQuiz({ ...quiz, multipleAttempts: e.target.checked })}
+            onChange={(e) => setQuiz({ ...quiz, multipleAttempts: e.target.checked, attemptsAllowed: 1 })}
           />
+          <Form.Control
+              style={{ width: 100 }}
+              type="number"
+              min={1}
+              disabled={!quiz.multipleAttempts}
+              value={quiz.attemptsAllowed || ""}
+              onChange={(e) => setQuiz({ ...quiz, attemptsAllowed: Number(e.target.value) })}
+            />
+            <span className="text-muted">Times</span>
+            </div>
         </Col>
       </Row>
 

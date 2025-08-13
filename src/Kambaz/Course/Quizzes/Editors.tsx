@@ -31,7 +31,7 @@ export default function Editors() {
           <Routes>
         <Route path="/" element={<Navigate to="Details"/>} />
         <Route path="Details" element={<DetailsEditor />} />
-        <Route path="Questions" element={<QuestionsEditor />} />
+        <Route path="Questions/*" element={<QuestionsEditor />} />
       </Routes>
     </div>
   );

@@ -18,10 +18,12 @@ export default function Profile() {
     dispatch(setCurrentUser(null));
     navigate("/Kambaz/Account/Signin");
   };
-  useEffect(() => { fetchProfile(); }, []);
+  useEffect(() => { fetchProfile();
+   }, []);
   const updateProfile = async () => {
     const updatedProfile = await client.updateUser(profile);
     dispatch(setCurrentUser(updatedProfile));
+    setProfile(updatedProfile);
     navigate("/Kambaz/Dashboard")
   };
 
@@ -31,17 +33,17 @@ export default function Profile() {
       <h3>Profile</h3>
       {profile && (
         <div>
-          <FormControl defaultValue={profile.username} id="wd-username" className="mb-2"
+          <FormControl value={profile.username} id="wd-username" className="mb-2"
                        onChange={(e) => setProfile({ ...profile, username:  e.target.value })}/>
-          <FormControl defaultValue={profile.password} id="wd-password" className="mb-2"
+          <FormControl value={profile.password} id="wd-password" className="mb-2"
                        onChange={(e) => setProfile({ ...profile, password:  e.target.value })}/>
-          <FormControl defaultValue={profile.firstName} id="wd-firstname" className="mb-2"
+          <FormControl value={profile.firstName} id="wd-firstname" className="mb-2"
                        onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}/>
-          <FormControl defaultValue={profile.lastName} id="wd-lastname" className="mb-2"
+          <FormControl value={profile.lastName} id="wd-lastname" className="mb-2"
                        onChange={(e) => setProfile({ ...profile, lastName:  e.target.value })}/>
-          <FormControl defaultValue={profile.dob?.substring(0, 10)} id="wd-dob" className="mb-2"
+          <FormControl value={profile.dob?.substring(0, 10)} id="wd-dob" className="mb-2"
                        onChange={(e) => setProfile({ ...profile, dob: e.target.value })} type="date"/>
-          <FormControl defaultValue={profile.email} id="wd-email" className="mb-2"
+          <FormControl value={profile.email} id="wd-email" className="mb-2"
                        onChange={ (e) => setProfile({ ...profile, email: e.target.value })}/>
           <select value={profile.role}
           onChange={(e) => setProfile({ ...profile, role:  e.target.value })}
