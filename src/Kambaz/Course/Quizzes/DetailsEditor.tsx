@@ -18,10 +18,10 @@ export default function DetailsEditor() {
   const [quiz, setQuiz] = useState<any>(null);
 
   const fetchQuizzes = async () => {
-        if (!cid || quiz) return;
-        const data = await coursesClient.findQuizzesForCourse(cid);
-        dispatch(setQuizzes(data));
-      };
+    if (!cid || quiz) return;
+    const data = await coursesClient.findQuizzesForCourse(cid);
+    dispatch(setQuizzes(data));
+  };
   useEffect(() => {
     fetchQuizzes();
     if (quizFromStore) {
@@ -29,10 +29,13 @@ export default function DetailsEditor() {
     }
   }, [quizFromStore]);
 
-  const handleSave = async () => {
+  const handleSave = async (publish: boolean) => {
     if (!quiz) return;
     const updated = await quizzesClient.updateQuiz(quiz);
-    dispatch(updateQuiz(updated)); 
+    dispatch(updateQuiz(updated));
+    if (publish) {
+      await quizzesClient.publishQuiz(quiz._id);
+    }
     navigate(`/Kambaz/Courses/${cid}/Quizzes`);
   };
 
@@ -59,7 +62,9 @@ export default function DetailsEditor() {
       </Form.Group>
 
       <Row className="mb-3">
-        <Col md={3} className="text-end text-muted">Quiz Type</Col>
+        <Col md={3} className="text-end text-muted">
+          Quiz Type
+        </Col>
         <Col md={5}>
           <Form.Select
             value={quiz.quizType}
@@ -74,11 +79,15 @@ export default function DetailsEditor() {
       </Row>
 
       <Row className="mb-4">
-        <Col md={3} className="text-end text-muted">Assignment Group</Col>
+        <Col md={3} className="text-end text-muted">
+          Assignment Group
+        </Col>
         <Col md={5}>
           <Form.Select
             value={quiz.assignmentGroup}
-            onChange={(e) => setQuiz({ ...quiz, assignmentGroup: e.target.value })}
+            onChange={(e) =>
+              setQuiz({ ...quiz, assignmentGroup: e.target.value })
+            }
           >
             <option value="ASSIGNMENTS">ASSIGNMENTS</option>
             <option value="QUIZZES">QUIZZES</option>
@@ -94,7 +103,9 @@ export default function DetailsEditor() {
             type="checkbox"
             label="Shuffle Answers"
             checked={quiz.shuffleAnswers}
-            onChange={(e) => setQuiz({ ...quiz, shuffleAnswers: e.target.checked })}
+            onChange={(e) =>
+              setQuiz({ ...quiz, shuffleAnswers: e.target.checked })
+            }
             className="mb-2"
           />
 
@@ -104,7 +115,10 @@ export default function DetailsEditor() {
               label="Time Limit"
               checked={!!quiz.timeLimit}
               onChange={(e) =>
-                setQuiz({ ...quiz, timeLimit: e.target.checked ? (quiz.timeLimit || 20) : 0 })
+                setQuiz({
+                  ...quiz,
+                  timeLimit: e.target.checked ? quiz.timeLimit || 20 : 0,
+                })
               }
             />
             <Form.Control
@@ -113,27 +127,37 @@ export default function DetailsEditor() {
               min={1}
               disabled={!quiz.timeLimit}
               value={quiz.timeLimit || ""}
-              onChange={(e) => setQuiz({ ...quiz, timeLimit: Number(e.target.value) })}
+              onChange={(e) =>
+                setQuiz({ ...quiz, timeLimit: Number(e.target.value) })
+              }
             />
             <span className="text-muted">Minutes</span>
           </div>
-            <div className="d-flex align-items-center gap-2 mb-2">
-          <Form.Check
-            type="checkbox"
-            label="Allow Multiple Attempts"
-            checked={quiz.multipleAttempts}
-            onChange={(e) => setQuiz({ ...quiz, multipleAttempts: e.target.checked, attemptsAllowed: 1 })}
-          />
-          <Form.Control
+          <div className="d-flex align-items-center gap-2 mb-2">
+            <Form.Check
+              type="checkbox"
+              label="Allow Multiple Attempts"
+              checked={quiz.multipleAttempts}
+              onChange={(e) =>
+                setQuiz({
+                  ...quiz,
+                  multipleAttempts: e.target.checked,
+                  attemptsAllowed: 1,
+                })
+              }
+            />
+            <Form.Control
               style={{ width: 100 }}
               type="number"
               min={1}
               disabled={!quiz.multipleAttempts}
               value={quiz.attemptsAllowed || ""}
-              onChange={(e) => setQuiz({ ...quiz, attemptsAllowed: Number(e.target.value) })}
+              onChange={(e) =>
+                setQuiz({ ...quiz, attemptsAllowed: Number(e.target.value) })
+              }
             />
             <span className="text-muted">Times</span>
-            </div>
+          </div>
         </Col>
       </Row>
 
@@ -145,7 +169,9 @@ export default function DetailsEditor() {
 
               <div className="mb-3">
                 <div className="text-muted mb-1">Assign to</div>
-                <Badge bg="light" text="dark" className="p-2">Everyone ✕</Badge>
+                <Badge bg="light" text="dark" className="p-2">
+                  Everyone ✕
+                </Badge>
               </div>
 
               <div className="mb-3">
@@ -153,7 +179,9 @@ export default function DetailsEditor() {
                 <Form.Control
                   type="date"
                   value={quiz.dueDate || ""}
-                  onChange={(e) => setQuiz({ ...quiz, dueDate: e.target.value })}
+                  onChange={(e) =>
+                    setQuiz({ ...quiz, dueDate: e.target.value })
+                  }
                 />
               </div>
 
@@ -163,7 +191,9 @@ export default function DetailsEditor() {
                   <Form.Control
                     type="date"
                     value={quiz.availableDate || ""}
-                    onChange={(e) => setQuiz({ ...quiz, availableDate: e.target.value })}
+                    onChange={(e) =>
+                      setQuiz({ ...quiz, availableDate: e.target.value })
+                    }
                   />
                 </Col>
                 <Col md={6}>
@@ -171,7 +201,9 @@ export default function DetailsEditor() {
                   <Form.Control
                     type="date"
                     value={quiz.availableUntil || ""}
-                    onChange={(e) => setQuiz({ ...quiz, availableUntil: e.target.value })}
+                    onChange={(e) =>
+                      setQuiz({ ...quiz, availableUntil: e.target.value })
+                    }
                   />
                 </Col>
               </Row>
@@ -184,8 +216,11 @@ export default function DetailsEditor() {
         <Button variant="light" size="lg" onClick={() => navigate(-3)}>
           Cancel
         </Button>
-        <Button variant="danger" size="lg" onClick={handleSave}>
+        <Button variant="danger" size="lg" onClick={() => handleSave(false)}>
           Save
+        </Button>
+        <Button variant="danger" size="lg" onClick={() => handleSave(true)}>
+          Save and Publish
         </Button>
       </div>
     </div>

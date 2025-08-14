@@ -4,6 +4,7 @@ import { Button, Col, Form, Row, Card, Badge } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { addQuiz } from "./reducer";
 import * as coursesClient from "../client";
+import * as quizzesClient from "./client";
 
 export default function QuizCreate() {
   const { cid } = useParams();
@@ -14,8 +15,16 @@ export default function QuizCreate() {
     title: "",
     description: "",
     course: cid ?? "",
-    quizType: "GRADED" as "GRADED" | "PRACTICE" | "GRADED_SURVEY" | "UNGRADED_SURVEY",
-    assignmentGroup: "ASSIGNMENTS" as "QUIZZES" | "EXAMS" | "ASSIGNMENTS" | "PROJECT",
+    quizType: "GRADED" as
+      | "GRADED"
+      | "PRACTICE"
+      | "GRADED_SURVEY"
+      | "UNGRADED_SURVEY",
+    assignmentGroup: "ASSIGNMENTS" as
+      | "QUIZZES"
+      | "EXAMS"
+      | "ASSIGNMENTS"
+      | "PROJECT",
     shuffleAnswers: false,
     timeLimitEnabled: false,
     timeLimit: 0,
@@ -33,7 +42,7 @@ export default function QuizCreate() {
     questionNumber: 0,
   });
 
-  const handleSave = async () => {
+  const handleSave = async (publish: boolean) => {
     if (!cid) return;
 
     const payload = {
@@ -43,6 +52,9 @@ export default function QuizCreate() {
 
     const newQuiz = await coursesClient.createQuizForCourse(cid, payload);
     dispatch(addQuiz(newQuiz));
+    if (publish) {
+      await quizzesClient.publishQuiz(newQuiz._id);
+    }
     navigate(`/Kambaz/Courses/${cid}/Quizzes`);
   };
 
@@ -68,7 +80,10 @@ export default function QuizCreate() {
       </Form.Group>
 
       <Row className="mb-3">
-        <Col md={3} className="d-flex align-items-center justify-content-md-end mb-2 mb-md-0">
+        <Col
+          md={3}
+          className="d-flex align-items-center justify-content-md-end mb-2 mb-md-0"
+        >
           <div className="text-muted">Quiz Type</div>
         </Col>
         <Col md={5}>
@@ -87,12 +102,15 @@ export default function QuizCreate() {
       </Row>
 
       <Row className="mb-4">
-        <Col md={3} className="d-flex align-items-center justify-content-md-end mb-2 mb-md-0">
+        <Col
+          md={3}
+          className="d-flex align-items-center justify-content-md-end mb-2 mb-md-0"
+        >
           <div className="text-muted">Assignment Group</div>
         </Col>
         <Col md={5}>
           <Form.Select
-          defaultValue={"QUIZZES"}
+            defaultValue={"QUIZZES"}
             value={quiz.assignmentGroup}
             onChange={(e) =>
               setQuiz({ ...quiz, assignmentGroup: e.target.value as any })
@@ -133,7 +151,7 @@ export default function QuizCreate() {
                 setQuiz({
                   ...quiz,
                   timeLimitEnabled: e.target.checked,
-                  timeLimit: e.target.checked ? (quiz.timeLimit || 20) : 0,
+                  timeLimit: e.target.checked ? quiz.timeLimit || 20 : 0,
                 })
               }
             />
@@ -159,7 +177,9 @@ export default function QuizCreate() {
               setQuiz({
                 ...quiz,
                 multipleAttempts: e.target.checked,
-                attemptsAllowed: e.target.checked ? Math.max(quiz.attemptsAllowed || 1, 1) : 1,
+                attemptsAllowed: e.target.checked
+                  ? Math.max(quiz.attemptsAllowed || 1, 1)
+                  : 1,
               })
             }
             className="mb-2"
@@ -175,7 +195,9 @@ export default function QuizCreate() {
 
               <div className="mb-3">
                 <div className="text-muted mb-1">Assign to</div>
-                <Badge bg="light" text="dark" className="p-2">Everyone ✕</Badge>
+                <Badge bg="light" text="dark" className="p-2">
+                  Everyone ✕
+                </Badge>
               </div>
 
               <div className="mb-3">
@@ -212,9 +234,7 @@ export default function QuizCreate() {
                 </Col>
               </Row>
             </Card.Body>
-            <Card.Footer className="text-center text-muted">
-              + Add
-            </Card.Footer>
+            <Card.Footer className="text-center text-muted">+ Add</Card.Footer>
           </Card>
         </Col>
       </Row>
@@ -223,8 +243,11 @@ export default function QuizCreate() {
         <Button variant="light" size="lg" onClick={() => navigate(-1)}>
           Cancel
         </Button>
-        <Button variant="danger" size="lg" onClick={handleSave}>
+        <Button variant="danger" size="lg" onClick={() => handleSave(false)}>
           Save
+        </Button>
+        <Button variant="danger" size="lg" onClick={() => handleSave(true)}>
+          Save and Publish
         </Button>
       </div>
     </div>

@@ -15,7 +15,6 @@ export default function Results() {
   const fetchAttempt = async () => {
     const attempt = await attemptClient.findAttemptById(aid! as string);
     setAttempt(attempt);
-    // console.log(attempt);
   };
   useEffect(() => {
     fetchAttempt();

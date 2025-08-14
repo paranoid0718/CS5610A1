@@ -11,7 +11,12 @@ export const updateQuiz = async (quiz: any) => {
   );
   return data;
 };
-
+export const publishQuiz = async (quizId: string) => {
+  const { data } = await axiosWithCredentials.put(
+    `${QUIZZES_API}/${quizId}/publish`
+  );
+  return data;
+};
 export const deleteQuiz = async (quizId: string) => {
   const { data } = await axiosWithCredentials.delete(
     `${QUIZZES_API}/${quizId}`
@@ -34,8 +39,14 @@ export const createQuestionForQuiz = async (quizId: string, question: any) => {
   return response.data;
 };
 
-export const createQuestionAndRecalcPoints = async (quizId: string, question: any) => {
-  const res = await axiosWithCredentials.post(`${QUIZZES_API}/${quizId}/questions/points`, question);
+export const createQuestionAndRecalcPoints = async (
+  quizId: string,
+  question: any
+) => {
+  const res = await axiosWithCredentials.post(
+    `${QUIZZES_API}/${quizId}/questions/points`,
+    question
+  );
   return res.data;
 };
 
