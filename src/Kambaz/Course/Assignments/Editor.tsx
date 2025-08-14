@@ -1,0 +1,246 @@
+import { Button, Col, Form, Row } from "react-bootstrap";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addAssignment, updateAssignment } from "./reducer";
+import { v4 as uuidv4 } from "uuid";
+import * as coursesClient from "../client";
+import * as assignmentClient from "./client";
+
+export default function AssignmentEditor() {
+  const { aid } = useParams();
+  const { cid } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+
+  const [assignment, setAssignment] = useState({
+    _id: uuidv4(),
+    title: "",
+    description: "",
+    points: 100,
+    dueDate: "",
+    availableDate: "",
+    availableUntil: "",
+    course: cid,
+  });
+
+  useEffect(() => {
+    if (aid !== "new") {
+      const existing = assignments.find(
+        (a: any) => a._id === aid && a.course === cid
+      );
+      if (existing) setAssignment(existing);
+    }
+  }, [aid, cid, assignments]);
+  const createAssignmentForCourse = async () => {
+    if (!cid) return;
+    const newAssignment = await coursesClient.createAssignmentForCourse(
+      cid,
+      assignment
+    );
+    dispatch(addAssignment(newAssignment));
+  };
+
+  const saveAssignment = async (assignment: any) => {
+    await assignmentClient.updateAssignment(assignment);
+    dispatch(updateAssignment(assignment));
+  };
+
+  const handleSave = async () => {
+    if (aid === "new") {
+      await createAssignmentForCourse();
+    } else {
+      await saveAssignment(assignment);
+    }
+    navigate(`/Kambaz/courses/${cid}/Assignments`);
+  };
+
+  return (
+    <div>
+      <div>
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Label> {assignment?.title}</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder={assignment?.title}
+              onChange={(e) =>
+                setAssignment({ ...assignment, title: e.target.value })
+              }
+              className="mb-3"
+            />
+            <Form.Control
+              onChange={(e) =>
+                setAssignment({ ...assignment, description: e.target.value })
+              }
+              as="textarea"
+              rows={4}
+              placeholder={assignment?.description}
+            />
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={2}>
+              {" "}
+              {assignment?.points}{" "}
+            </Form.Label>
+            <Col sm={10}>
+              <Form.Control
+                onChange={(e) =>
+                  setAssignment({
+                    ...assignment,
+                    points: Number(e.target.value),
+                  })
+                }
+                type="password"
+                placeholder="100"
+              />
+            </Col>
+          </Form.Group>
+          <fieldset>
+            <Form.Group as={Row} className="mb-3">
+              <Form.Label column sm={2}>
+                {" "}
+                Assignmentt Group
+              </Form.Label>
+              <Col sm={10}>
+                <Form.Select className="mb-2">
+                  <option value="assignments">Assignments</option>
+                  <option value="quizzes">Quizzes</option>
+                  <option value="exams">exams</option>
+                  <option value="project">Projects </option>
+                </Form.Select>
+              </Col>
+            </Form.Group>
+            <fieldset>
+              <Form.Group as={Row} className="mb-3">
+                <Form.Label column sm={2}>
+                  {" "}
+                  Display Grade as{" "}
+                </Form.Label>
+                <Col sm={10}>
+                  <Form.Select className="mb-2">
+                    <option value="Percentage">Percentage</option>
+                    <option value="Points">Points</option>
+                    <option value="Complete/Incomplete">
+                      Complete/Incomplete
+                    </option>
+                  </Form.Select>
+                </Col>
+              </Form.Group>
+            </fieldset>
+            <Form.Group as={Row} className="mb-3">
+              <Form.Label as="legend" column sm={2} className="mb-2">
+                Submission Type{" "}
+              </Form.Label>
+              <Col sm={10}>
+                <Form.Group className="border border-secondary rounded p-3">
+                  <Form.Select className="mb-2">
+                    <option value="online">Online</option>
+                    <option value="paper">On Paper</option>
+                    <option value="none">No Submission</option>
+                  </Form.Select>
+                  <Form.Label className="mb-2"> Submission Type </Form.Label>
+                  <Form.Check
+                    type="checkbox"
+                    id="text-entry"
+                    label="Text Entry"
+                    className="mb-2"
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    id="website-url"
+                    label="Website URL"
+                    className="mb-2"
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    id="media-recordings"
+                    label="Media Recordings"
+                    className="mb-2"
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    id="student-annotation"
+                    label="Student Annotation"
+                    className="mb-2"
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    id="file-uploads"
+                    label="File Uploads"
+                    className="mb-2"
+                  />
+                </Form.Group>
+              </Col>
+            </Form.Group>
+          </fieldset>
+
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={2}>
+              {" "}
+              Assign{" "}
+            </Form.Label>
+            <Col>
+              <Form.Group className="mb-3 border border-secondary rounded p-3">
+                <Form.Label> Assign to </Form.Label>
+                <Form.Control type="text" placeholder="" className="mb-3" />
+                <Form.Label> Due </Form.Label>
+                <Form.Control
+                  type="date"
+                  defaultValue={assignment?.dueDate}
+                  className="mb-3"
+                  onChange={(e) =>
+                    setAssignment({ ...assignment, dueDate: e.target.value })
+                  }
+                />
+                <Form.Group as={Row} className="mb-3">
+                  <Col sm={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label> Available From </Form.Label>
+                      <Form.Control
+                        type="date"
+                        defaultValue={assignment?.availableDate}
+                        onChange={(e) =>
+                          setAssignment({
+                            ...assignment,
+                            availableDate: e.target.value,
+                          })
+                        }
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col sm={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label> Until </Form.Label>
+                      <Form.Control
+                        type="date"
+                        defaultValue={assignment?.availableUntil}
+                        onChange={(e) =>
+                          setAssignment({
+                            ...assignment,
+                            availableUntil: e.target.value,
+                          })
+                        }
+                      />
+                    </Form.Group>
+                  </Col>
+                </Form.Group>
+              </Form.Group>
+            </Col>
+          </Form.Group>
+        </Form>
+      </div>
+
+      <hr />
+      <div className="float-end">
+        <Link to={`/Kambaz/courses/${cid}/Assignments`} className="me-2">
+          <Button variant="secondary">Cancel</Button>
+        </Link>
+        <Button variant="danger" onClick={() => handleSave()}>
+          Save
+        </Button>
+      </div>
+    </div>
+  );
+}
