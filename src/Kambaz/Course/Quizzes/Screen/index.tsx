@@ -16,7 +16,6 @@ export default function QuizScreen() {
     dispatch(setQuestions(questions));
   };
   const submitQuiz = async () => {
-    // Collect user's selected answers
     const formElements = document.querySelectorAll(
       'input[type="radio"]:checked'
     );
