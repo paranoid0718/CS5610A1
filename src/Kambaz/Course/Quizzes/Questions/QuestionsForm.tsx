@@ -17,8 +17,14 @@ type Question = {
   answer: string[];
 };
 
-export default function QuestionForm({questions, setQuestions}: {questions: any[], setQuestions : (questions:any) => void})  {
-  const { cid, qid, questionId } = useParams(); 
+export default function QuestionForm({
+  questions,
+  setQuestions,
+}: {
+  questions: any[];
+  setQuestions: (questions: any) => void;
+}) {
+  const { cid, qid, questionId } = useParams();
   const navigate = useNavigate();
 
   const isNew = questionId === "new";
@@ -35,14 +41,13 @@ export default function QuestionForm({questions, setQuestions}: {questions: any[
     answer: [],
   });
 
-
   useEffect(() => {
     const init = async () => {
       if (!isNew && questionId) {
         const existing = await questionsClient.findQuestionById(questionId);
         setQ(existing);
       } else {
-        setQ({...q, quizId: qid || ""});
+        setQ({ ...q, quizId: qid || "" });
       }
     };
     init();
@@ -54,23 +59,32 @@ export default function QuestionForm({questions, setQuestions}: {questions: any[
     if (t === "MULTIPLE_CHOICE") {
       editQ({
         type: t,
-        choices:[
-                { text: "Option 1", isCorrect: true },
-                { text: "Option 2", isCorrect: false },
-              ],
+        choices: [
+          { text: "Option 1", isCorrect: true },
+          { text: "Option 2", isCorrect: false },
+        ],
         answer: [],
       });
     } else if (t === "TRUE_FALSE") {
-      editQ({ type: t, choices:[
-                { text: "True", isCorrect: true },
-                { text: "False", isCorrect: false },
-              ], answer:[] });
+      editQ({
+        type: t,
+        choices: [
+          { text: "True", isCorrect: true },
+          { text: "False", isCorrect: false },
+        ],
+        answer: [],
+      });
     } else {
-      editQ({ type: t, choices: [], answer: q.answer?.length ? q.answer : [""] });
+      editQ({
+        type: t,
+        choices: [],
+        answer: q.answer?.length ? q.answer : [""],
+      });
     }
   };
 
-  const addChoice = () => editQ({ choices: [...q.choices, { text: "", isCorrect: false }] });
+  const addChoice = () =>
+    editQ({ choices: [...q.choices, { text: "", isCorrect: false }] });
   const removeChoice = (idx: number) => {
     const deletedChoice = [...q.choices];
     deletedChoice.splice(idx, 1);
@@ -82,17 +96,17 @@ export default function QuestionForm({questions, setQuestions}: {questions: any[
     editQ({ choices: updatedChoices });
   };
 
-const setTrueFalse = (opt: "True" | "False") => {
-  const updatedChoices = q.choices.map(choice => ({
-    ...choice,
-    isCorrect: choice.text === opt
-  }));
+  const setTrueFalse = (opt: "True" | "False") => {
+    const updatedChoices = q.choices.map((choice) => ({
+      ...choice,
+      isCorrect: choice.text === opt,
+    }));
 
-  editQ({
-    choices: updatedChoices,
-    answer: [opt]
-  });
-};
+    editQ({
+      choices: updatedChoices,
+      answer: [opt],
+    });
+  };
 
   const addBlank = () => editQ({ answer: [...q.answer, ""] });
   const removeBlank = (idx: number) => {
@@ -109,22 +123,27 @@ const setTrueFalse = (opt: "True" | "False") => {
   const handleSave = async () => {
     console.log(q);
     const payload = {
-        _id: q._id,
+      _id: q._id,
       quizId: q.quizId,
       type: q.type,
       title: q.title,
       points: Number(q.points) || 0,
       choices: q.choices,
       answer:
-        q.type === "TRUE_FALSE" || q.type === "FILL_IN_BLANK"
+        q.type === "FILL_IN_BLANK"
           ? q.answer
-          : [],
+          : q.choices
+              .filter((choice) => choice.isCorrect)
+              .map((choice) => choice.text),
     } as any;
 
     if (isNew) {
-      const newQuestion = await quizzesClient.createQuestionForQuiz(qid as string, payload);
+      const newQuestion = await quizzesClient.createQuestionForQuiz(
+        qid as string,
+        payload
+      );
       setQuestions([...questions, newQuestion]);
-    await quizzesClient.recalcQuizQuestionNumber(qid as string);
+      await quizzesClient.recalcQuizQuestionNumber(qid as string);
     } else {
       await questionsClient.updateQuestion(payload);
       setQuestions(await quizzesClient.findQuestionsForQuiz(qid as string));
@@ -137,12 +156,15 @@ const setTrueFalse = (opt: "True" | "False") => {
   const handleCancel = () => navigate(-1);
 
   return (
-    <div className="d-flex flex-column gap-3" >
+    <div className="d-flex flex-column gap-3">
       <h5 className="mb-2">{isNew ? "Add Question" : "Edit Question"}</h5>
 
       <Form.Group>
         <Form.Label>Question Type</Form.Label>
-        <Form.Select value={q.type} onChange={(e) => changeType(e.target.value as QuestionType)}>
+        <Form.Select
+          value={q.type}
+          onChange={(e) => changeType(e.target.value as QuestionType)}
+        >
           <option value="MULTIPLE_CHOICE">Multiple Choice</option>
           <option value="TRUE_FALSE">True / False</option>
           <option value="FILL_IN_BLANK">Fill in the Blank</option>
@@ -175,7 +197,9 @@ const setTrueFalse = (opt: "True" | "False") => {
             <InputGroup key={i} className="mb-2">
               <InputGroup.Checkbox
                 checked={!!c.isCorrect}
-                onChange={(e) => updateChoice(i, { isCorrect: e.target.checked })}
+                onChange={(e) =>
+                  updateChoice(i, { isCorrect: e.target.checked })
+                }
                 title="Correct?"
               />
               <Form.Control
@@ -183,12 +207,17 @@ const setTrueFalse = (opt: "True" | "False") => {
                 onChange={(e) => updateChoice(i, { text: e.target.value })}
                 placeholder={`Choice ${i + 1}`}
               />
-              <Button variant="outline-secondary" onClick={() => removeChoice(i)}>
+              <Button
+                variant="outline-secondary"
+                onClick={() => removeChoice(i)}
+              >
                 Delete
               </Button>
             </InputGroup>
           ))}
-          <Button variant="light" onClick={addChoice}>+ Add Choice</Button>
+          <Button variant="light" onClick={addChoice}>
+            + Add Choice
+          </Button>
         </div>
       )}
 
@@ -218,18 +247,27 @@ const setTrueFalse = (opt: "True" | "False") => {
                 onChange={(e) => updateBlank(i, e.target.value)}
                 placeholder={`Answer ${i + 1}`}
               />
-              <Button variant="outline-secondary" onClick={() => removeBlank(i)}>
+              <Button
+                variant="outline-secondary"
+                onClick={() => removeBlank(i)}
+              >
                 Delete
               </Button>
             </InputGroup>
           ))}
-          <Button variant="light" onClick={addBlank}>+ Add Answer</Button>
+          <Button variant="light" onClick={addBlank}>
+            + Add Answer
+          </Button>
         </div>
       )}
-    <hr />
+      <hr />
       <div className="d-flex justify-content-center gap-3 mt-3">
-        <Button variant="light" onClick={handleCancel}>Cancel</Button>
-        <Button variant="danger" onClick={handleSave}>Save</Button>
+        <Button variant="light" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button variant="danger" onClick={handleSave}>
+          Save
+        </Button>
       </div>
     </div>
   );

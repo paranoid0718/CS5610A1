@@ -23,6 +23,7 @@ export default function DetailsEditor() {
     dispatch(setQuizzes(data));
   };
   useEffect(() => {
+    // console.log(quiz.published);
     fetchQuizzes();
     if (quizFromStore) {
       setQuiz(quizFromStore);
@@ -219,9 +220,13 @@ export default function DetailsEditor() {
         <Button variant="danger" size="lg" onClick={() => handleSave(false)}>
           Save
         </Button>
-        <Button variant="danger" size="lg" onClick={() => handleSave(true)}>
-          Save and Publish
-        </Button>
+        {quiz.published ? (
+          <></>
+        ) : (
+          <Button variant="danger" size="lg" onClick={() => handleSave(true)}>
+            Save and Publish
+          </Button>
+        )}
       </div>
     </div>
   );

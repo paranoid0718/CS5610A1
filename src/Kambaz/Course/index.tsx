@@ -12,7 +12,7 @@ import QuizDetails from "./Quizzes/Details";
 import Editors from "./Quizzes/Editors"
 import QuizPreview from "./Quizzes/Preview";
 import QuizScreen from "./Quizzes/Screen";
-import Results from "./Quizzes/Screen/results";
+import Results from "./Quizzes/Screen/Results";
 export default function Courses({ courses }: { courses: any[]; }) {
   const { cid } = useParams()
   const course = courses.find((course) => course._id === cid);

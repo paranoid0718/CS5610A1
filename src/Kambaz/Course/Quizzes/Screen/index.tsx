@@ -17,7 +17,7 @@ export default function QuizScreen() {
   };
   const submitQuiz = async () => {
     const formElements = document.querySelectorAll(
-      'input[type="radio"]:checked'
+      'input[type="radio"]:checked, input[type="text"]'
     );
     const answers = Array.from(formElements).map((el: any) => ({
       questionId: el.name,
@@ -44,12 +44,22 @@ export default function QuizScreen() {
           <li key={question._id}>
             <h3>{question.title}</h3>
             <ul>
-              {question.choices.map((choice: any, index: number) => (
-                <li key={index}>
-                  <input type="radio" name={question._id} value={choice.text} />
-                  {choice.text}
+              {question.type === "FILL_IN_BLANK" ? (
+                <li>
+                  <input type="text" name={question._id} />
                 </li>
-              ))}
+              ) : (
+                question.choices.map((choice: any, index: number) => (
+                  <li key={index}>
+                    <input
+                      type="radio"
+                      name={question._id}
+                      value={choice.text}
+                    />
+                    {choice.text}
+                  </li>
+                ))
+              )}
             </ul>
           </li>
         ))}

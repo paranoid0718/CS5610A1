@@ -20,3 +20,9 @@ export const findAttemptById = async (attemptId: string) => {
   );
   return response.data;
 };
+export const findAttemptsForQuizByUser = async (quizId: string, userId: string) => {
+  const response = await axiosWithCredentials.get(
+    `${ATTEMPTS_API}/quiz/${quizId}/user/${userId}/attempts`
+  );
+  return response.data;
+};
