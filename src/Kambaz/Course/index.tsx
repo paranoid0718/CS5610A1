@@ -9,44 +9,47 @@ import Users from "./Users";
 import Quizzes from "./Quizzes";
 import QuizCreate from "./Quizzes/New";
 import QuizDetails from "./Quizzes/Details";
-import Editors from "./Quizzes/Editors"
+import Editors from "./Quizzes/Editors";
 import QuizPreview from "./Quizzes/Preview";
 import QuizScreen from "./Quizzes/Screen";
 import Results from "./Quizzes/Screen/Results";
-export default function Courses({ courses }: { courses: any[]; }) {
-  const { cid } = useParams()
+import Grades from "./Grades";
+export default function Courses({ courses }: { courses: any[] }) {
+  const { cid } = useParams();
   const course = courses.find((course) => course._id === cid);
-  const {pathname} = useLocation()
+  const { pathname } = useLocation();
   return (
     <div id="wd-courses">
-        <h2 className="text-danger">
-      <FaAlignJustify className="me-4 fs-4 mb-1" />
-      {course && course.name} &gt; {pathname.split("/")[4]}
- </h2> <hr />
-  <div className="d-flex">
-    <div className="d-none d-md-block">
-            <CourseNavigation />
-                </div>
-    <div className="flex-fill">
-            <Routes>
-              <Route path="/" element={<Navigate to="Home" />} />
-              <Route path="Home" element={<Home/>} />
-              <Route path="Modules" element={<Modules />} />
-              <Route path="Assignments" element={<Assignments />} />
-              <Route path="Assignments/:aid" element={<AssignmentEditor />} />
-              <Route path="/Piazza" element={<h1>Piazza</h1>} />
-              <Route path="/Zoom" element={<h1>Zoom</h1>} />
-              <Route path="/Quizzes/*" element={<Quizzes />} />
-              <Route path="Quizzes/new" element={<QuizCreate />} />
-              <Route path="Quizzes/:qid/*" element={<QuizDetails />} />
-              <Route path="/Grades" element={<h1>Grades</h1>} />
-              <Route path="People" element={<Users/>}/>
-              <Route path="Quizzes/:qid/Editors/*" element={<Editors /> }/>
-              <Route path="Quizzes/:qid/Preview" element={<QuizPreview />} />
-              <Route path="Quizzes/:qid/Take" element={<QuizScreen />} />
-              <Route path="Quizzes/:qid/Results/:aid" element={<Results />} />
-            </Routes>
+      <h2 className="text-danger">
+        <FaAlignJustify className="me-4 fs-4 mb-1" />
+        {course && course.name} &gt; {pathname.split("/")[4]}
+      </h2>
+      <hr />
+      <div className="d-flex">
+        <div className="d-none d-md-block">
+          <CourseNavigation />
+        </div>
+        <div className="flex-fill">
+          <Routes>
+            <Route path="/" element={<Navigate to="Home" />} />
+            <Route path="Home" element={<Home />} />
+            <Route path="Modules" element={<Modules />} />
+            <Route path="Assignments" element={<Assignments />} />
+            <Route path="Assignments/:aid" element={<AssignmentEditor />} />
+            <Route path="/Piazza" element={<h1>Piazza</h1>} />
+            <Route path="/Zoom" element={<h1>Zoom</h1>} />
+            <Route path="/Quizzes/*" element={<Quizzes />} />
+            <Route path="Quizzes/new" element={<QuizCreate />} />
+            <Route path="Quizzes/:qid/*" element={<QuizDetails />} />
+            <Route path="/Grades" element={<Grades />} />
+            <Route path="People" element={<Users />} />
+            <Route path="Quizzes/:qid/Editors/*" element={<Editors />} />
+            <Route path="Quizzes/:qid/Preview" element={<QuizPreview />} />
+            <Route path="Quizzes/:qid/Take" element={<QuizScreen />} />
+            <Route path="Quizzes/:qid/Results/:aid" element={<Results />} />
+          </Routes>
+        </div>
+      </div>
     </div>
-    </div>
-    </div>
-);}
+  );
+}

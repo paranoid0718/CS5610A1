@@ -2,10 +2,11 @@ import { configureStore } from "@reduxjs/toolkit";
 import modulesReducer from "./Course/Modules/reducer";
 import accountReducer from "./Account/reducer";
 import assignmentsReducer from "./Course/Assignments/reducer";
-import coursesReducer from "./reducer"
-import enrollmentReducer from "./Enrollments/reducer"
-import quizzesReducer from "./Course/Quizzes/reducer"
+import coursesReducer from "./reducer";
+import enrollmentReducer from "./Enrollments/reducer";
+import quizzesReducer from "./Course/Quizzes/reducer";
 import questionsReducer from "./Course/Quizzes/Screen/reducer";
+import gradesReducer from "./Course/Grades/reducer";
 const store = configureStore({
   reducer: {
     modulesReducer,
@@ -15,6 +16,7 @@ const store = configureStore({
     enrollmentReducer,
     quizzesReducer,
     questionsReducer,
+    gradesReducer,
   },
 });
 export default store;

@@ -1,37 +1,65 @@
 import { useEffect, useState } from "react";
-import { Button, Col, FormControl, InputGroup, ListGroup, Row, Dropdown } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  FormControl,
+  InputGroup,
+  ListGroup,
+  Row,
+  Dropdown,
+} from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { BsGripVertical } from "react-icons/bs";
 import { FaSearch, FaEllipsisV } from "react-icons/fa";
 import * as coursesClient from "../client";
 import * as quizzesClient from "./client";
+import * as attemptsClient from "./Screen/client";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuizzes, deleteQuiz, updateQuiz } from "./reducer";
 
 export default function Quizzes() {
   const { cid } = useParams();
+  const currentUser = useSelector(
+    (state: any) => state.accountReducer.currentUser
+  );
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { quizzes } = useSelector((state: any) => state.quizzesReducer);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
+  // const [canTake, setCanTake] = useState(false);
+
+  const loadQuizzes = async () => {
+    if (!cid) return;
+    setLoading(true);
+    try {
+      const data = await coursesClient.findQuizzesForCourse(cid);
+      dispatch(setQuizzes(data));
+    } finally {
+      setLoading(false);
+    }
+  };
+  const checkCanTakeQuiz = async (qid: string) => {
+    const quiz = await quizzesClient.findQuizById(qid);
+    const attempts = await attemptsClient.findAttemptsForQuizByUser(
+      qid!,
+      currentUser._id
+    );
+    if (attempts.length < 1 || quiz.multipleAttempts) {
+      navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}`);
+    } else {
+      const lastAttemptId = attempts[attempts.length - 1]._id;
+      navigate(
+        `/Kambaz/Courses/${cid}/Quizzes/${qid}/Results/${lastAttemptId}`
+      );
+    }
+  };
 
   useEffect(() => {
-    const loadQuizzes = async () => {
-      if (!cid) return;
-      setLoading(true);
-      try {
-        const data = await coursesClient.findQuizzesForCourse(cid);
-        dispatch(setQuizzes(data));
-      } finally {
-        setLoading(false);
-      }
-    };
     loadQuizzes();
   }, [cid, dispatch]);
 
-const filtered =
-  !keyword.trim()
+  const filtered = !keyword.trim()
     ? quizzes
     : quizzes.filter((q: any) => {
         const k = keyword.trim().toLowerCase();
@@ -78,7 +106,9 @@ const filtered =
           <Col xs={8}>
             <div className="float-start">
               <InputGroup>
-                <InputGroup.Text><FaSearch /></InputGroup.Text>
+                <InputGroup.Text>
+                  <FaSearch />
+                </InputGroup.Text>
                 <FormControl
                   type="text"
                   placeholder="Search quizzes..."
@@ -113,7 +143,10 @@ const filtered =
 
           <ListGroup className="rounded-0">
             {filtered.map((q: any) => (
-              <ListGroup.Item key={q._id} className="p-3 ps-1 d-flex align-items-start">
+              <ListGroup.Item
+                key={q._id}
+                className="p-3 ps-1 d-flex align-items-start"
+              >
                 <BsGripVertical className="me-2 fs-3 flex-shrink-0" />
                 <span
                   className="me-2 mt-1 fload-end "
@@ -123,7 +156,10 @@ const filtered =
                 </span>
                 <div className="flex-grow-1">
                   <a
-                    href={`#/Kambaz/Courses/${cid}/Quizzes/${q._id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      checkCanTakeQuiz(q._id);
+                    }}
                     className="text-decoration-none fw-semibold d-block mb-1"
                   >
                     {q.title}
@@ -131,18 +167,25 @@ const filtered =
                   <div className="text-muted small">
                     <span className="me-2">{availabilityLabel(q)}</span>
                     {q.dueDate && (
-                      <span className="me-2"><strong>Due:</strong> {q.dueDate}</span>
+                      <span className="me-2">
+                        <strong>Due:</strong> {q.dueDate}
+                      </span>
                     )}
                     {q.points != null && (
-                      <span className="me-2"><strong>Points:</strong> {q.points}</span>
+                      <span className="me-2">
+                        <strong>Points:</strong> {q.points}
+                      </span>
                     )}
                     {q.questionNumber != null && (
-                      <span className="me-2"><strong>Questions:</strong> {q.questionNumber}</span>
+                      <span className="me-2">
+                        <strong>Questions:</strong> {q.questionNumber}
+                      </span>
                     )}
                     {q.lastScore != null && (
-                      <span className="me-2"><strong>Score:</strong> {q.lastScore}</span>
+                      <span className="me-2">
+                        <strong>Score:</strong> {q.lastScore}
+                      </span>
                     )}
-                    
                   </div>
                 </div>
                 <Dropdown align="end" className="ms-2">
@@ -150,7 +193,13 @@ const filtered =
                     <FaEllipsisV />
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${q._id}/Editors`)}>
+                    <Dropdown.Item
+                      onClick={() =>
+                        navigate(
+                          `/Kambaz/Courses/${cid}/Quizzes/${q._id}/Editors`
+                        )
+                      }
+                    >
                       Edit
                     </Dropdown.Item>
                     <Dropdown.Item onClick={() => removeQuiz(q._id)}>
@@ -161,11 +210,12 @@ const filtered =
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
-
               </ListGroup.Item>
             ))}
             {!loading && filtered.length === 0 && (
-              <div className="p-4 text-center text-muted">No quizzes found.</div>
+              <div className="p-4 text-center text-muted">
+                No quizzes found.
+              </div>
             )}
           </ListGroup>
         </ListGroup.Item>

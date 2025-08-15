@@ -4,8 +4,11 @@ import * as quizClient from "../client";
 import { useParams } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import { Card, Form } from "react-bootstrap";
+// import { setGrades } from "../../Grades/reducer";
+// import { useDispatch } from "react-redux";
 
 export default function Results() {
+  // const dispatch = useDispatch();
   const { qid, aid } = useParams();
   const [attempt, setAttempt] = useState({
     _id: uuidv4(),
@@ -32,10 +35,20 @@ export default function Results() {
     let score = 0;
     attempt.answers.forEach((answer: any) => {
       const question = questions.find((q: any) => q._id === answer.questionId);
-      if (question && answer.choice === String(question.answer)) {
+      if (question && question.answer.includes(String(answer.choice))) {
         score += question.points;
       }
     });
+    // dispatch(
+    //   setGrades({
+    //     course: attempt.course,
+    //     user: attempt.user,
+    //     quiz: attempt.quiz,
+    //     score: score,
+    //     attempt: attempt._id,
+    //   })
+    // );
+
     return `${score}/${questions.reduce((total, q) => total + q.points, 0)}`;
   };
 
@@ -68,11 +81,14 @@ export default function Results() {
             return (
               <div key={`${answer.questionId}-${i}`}>
                 <Card>
-                  <Card.Header   className={`d-flex justify-content-between ${
-    question && String(answer.choice) === String(question.answer)
-      ? "bg-success"
-      : "bg-danger"
-  }`}>
+                  <Card.Header
+                    className={`d-flex justify-content-between ${
+                      question &&
+                      question.answer.includes(String(answer.choice))
+                        ? "bg-success"
+                        : "bg-danger"
+                    }`}
+                  >
                     <div>
                       {question ? `Question${i + 1}` : "Question not found"}
                     </div>
@@ -112,7 +128,13 @@ export default function Results() {
                 </Card>
 
                 <div className="mt-2 ms-2">
-                  <p>Correct answer: {question?.answer || "Not found"}</p>
+                  <p>
+                    <p>{`${
+                      question && question?.answer.length > 1
+                        ? "Accepted answers:"
+                        : "Correct answer:"
+                    } ${question?.answer.join(", ") || "Not found"}`}</p>
+                  </p>
                   <p>Your answer: {answer.choice}</p>
                 </div>
               </div>

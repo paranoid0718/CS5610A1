@@ -62,3 +62,7 @@ export const recalcQuizQuestionNumber = async (quizId: string) => {
   );
   return data;
 };
+export const findQuizById = async (quizId: string) => {
+  const response = await axiosWithCredentials.get(`${QUIZZES_API}/${quizId}`);
+  return response.data;
+};

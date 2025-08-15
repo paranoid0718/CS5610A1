@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button, Row, Col } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import * as coursesClient from "../client";
-import * as attemptsClient from "./Screen/client";
 import { setQuizzes } from "./reducer";
 
 export default function QuizDetails() {
@@ -18,25 +17,15 @@ export default function QuizDetails() {
   const isFaculty = role === "FACULTY";
 
   const quiz: any = quizzes?.find((q: any) => q._id === qid);
-  const [canTake, setCanTake] = useState(false);
 
   const fetchQuizzes = async () => {
     if (!cid || quiz) return;
     const data = await coursesClient.findQuizzesForCourse(cid);
     dispatch(setQuizzes(data));
   };
-  const checkCanTakeQuiz = async () => {
-    const attempts = await attemptsClient.findAttemptsForQuizByUser(
-      qid!,
-      currentUser._id
-    );
-    if (attempts.length < 1 || quiz.multipleAttempts) {
-      setCanTake(true);
-    }
-  };
+
   useEffect(() => {
     fetchQuizzes();
-    checkCanTakeQuiz();
   }, [cid, quiz, dispatch]);
 
   if (!quiz) {
@@ -63,7 +52,7 @@ export default function QuizDetails() {
             onClick={() =>
               navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/Take`)
             }
-            disabled={!quiz.published || !canTake}
+            disabled={!quiz.published}
           >
             Take Quiz
           </Button>
