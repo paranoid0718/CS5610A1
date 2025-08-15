@@ -11,7 +11,6 @@ export default function LessonControlButtons({ moduleId, deleteModule,editModule
       <FaTrash 
    onClick={(e) => {
       e.stopPropagation();
-      console.log("🟢 Trash icon clicked", moduleId);
       deleteModule(moduleId);
    }}/>
       <GreenCheckmark />
