@@ -93,8 +93,6 @@ export default function QuestionForm({
 const updateChoice = (idx: number, patch: Partial<Choice>) => {
   const nextChoices = q.choices.map((choice, i) => {
     const merged = i === idx ? { ...choice, ...patch } : choice;
-
-    // 只有当这次确实在改 isCorrect 时，才做“互斥”处理
     if ("isCorrect" in patch) {
       return {
         ...merged,
