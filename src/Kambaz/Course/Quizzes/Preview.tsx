@@ -75,7 +75,7 @@ const quiz = quizzes?.find((q: Quiz) => q._id === qid);
                     {q.choices?.map((c, i) => (
                       <Form.Check
                         key={i}
-                        type="checkbox"
+                        type="radio"
                         className="mb-2"
                         label={c.text}
                         checked={c.isCorrect}

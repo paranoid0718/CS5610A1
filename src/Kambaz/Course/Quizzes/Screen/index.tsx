@@ -4,6 +4,7 @@ import * as attemptClient from "./client";
 import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuestions } from "./reducer";
+import { Card, Form, Button } from "react-bootstrap";
 
 export default function QuizScreen() {
   const { questions } = useSelector((state: any) => state.questionsReducer);
@@ -11,13 +12,15 @@ export default function QuizScreen() {
   const { cid, qid } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const fetchQuiz = async () => {
     const questions = await quizClient.findQuestionsForQuiz(qid! as string);
     dispatch(setQuestions(questions));
   };
+
   const submitQuiz = async () => {
     const formElements = document.querySelectorAll(
-      'input[type="radio"]:checked, input[type="text"]'
+      'input[type="radio"]:checked, input[type="checkbox"]:checked, input[type="text"]'
     );
     const answers = Array.from(formElements).map((el: any) => ({
       questionId: el.name,
@@ -32,39 +35,72 @@ export default function QuizScreen() {
     const response = await attemptClient.addAttempt(attempt);
     navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/Results/${response._id}`);
   };
+
   useEffect(() => {
     fetchQuiz();
   }, []);
+
   return (
-    <div>
-      <h1>Quiz Screen</h1>
-      {/* {questions} */}
-      <ul>
-        {questions.map((question: any) => (
-          <li key={question._id}>
-            <h3>{question.title}</h3>
-            <ul>
-              {question.type === "FILL_IN_BLANK" ? (
-                <li>
-                  <input type="text" name={question._id} />
-                </li>
-              ) : (
-                question.choices.map((choice: any, index: number) => (
-                  <li key={index}>
-                    <input
+    <div className="mx-auto" style={{ maxWidth: 900 }}>
+      <div className="d-flex align-items-center mb-3">
+        <h3 className="mb-0">Quiz</h3>
+      </div>
+
+      <div className="d-flex flex-column gap-3">
+        {questions.map((question: any, index: number) => (
+          <Card key={question._id}>
+            <Card.Header className="d-flex justify-content-between">
+              <div>Question{index + 1}.</div>
+              <div>{question.points} pts</div>
+            </Card.Header>
+            <Card.Body>
+              {question.title}
+
+              {question.type === "FILL_IN_BLANK" && (
+                <Form className="mt-2">
+                  <Form.Control type="text" name={question._id} />
+                </Form>
+              )}
+
+              {question.type === "TRUE_FALSE" && (
+                <Form className="mt-2">
+                  {question.choices.map((choice: any, i: number) => (
+                    <Form.Check
+                      key={i}
                       type="radio"
                       name={question._id}
+                      className="mb-2"
+                      label={choice.text}
                       value={choice.text}
                     />
-                    {choice.text}
-                  </li>
-                ))
+                  ))}
+                </Form>
               )}
-            </ul>
-          </li>
+
+              {question.type === "MULTIPLE_CHOICE" && (
+                <Form className="mt-2">
+                  {question.choices.map((choice: any, i: number) => (
+                    <Form.Check
+                      key={i}
+                      type="radio"
+                      name={question._id}
+                      className="mb-2"
+                      label={choice.text}
+                      value={choice.text}
+                    />
+                  ))}
+                </Form>
+              )}
+            </Card.Body>
+          </Card>
         ))}
-      </ul>
-      <button onClick={submitQuiz}>Submit Quiz</button>
+
+        <div className="d-flex justify-content-center gap-3 my-3">
+          <Button variant="danger" onClick={submitQuiz}>
+            Submit Quiz
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

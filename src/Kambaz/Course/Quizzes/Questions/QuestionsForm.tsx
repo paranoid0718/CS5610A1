@@ -90,11 +90,22 @@ export default function QuestionForm({
     deletedChoice.splice(idx, 1);
     editQ({ choices: deletedChoice });
   };
-  const updateChoice = (idx: number, p: any) => {
-    const updatedChoices = [...q.choices];
-    updatedChoices[idx] = { ...updatedChoices[idx], ...p };
-    editQ({ choices: updatedChoices });
-  };
+const updateChoice = (idx: number, patch: Partial<Choice>) => {
+  const nextChoices = q.choices.map((choice, i) => {
+    const merged = i === idx ? { ...choice, ...patch } : choice;
+
+    // 只有当这次确实在改 isCorrect 时，才做“互斥”处理
+    if ("isCorrect" in patch) {
+      return {
+        ...merged,
+        isCorrect: i === idx ? !!patch.isCorrect : false,
+      };
+    }
+    return merged;
+  });
+
+  setQ({ ...q, choices: nextChoices });
+};
 
   const setTrueFalse = (opt: "True" | "False") => {
     const updatedChoices = q.choices.map((choice) => ({
@@ -190,36 +201,32 @@ export default function QuestionForm({
         />
       </Form.Group>
 
-      {q.type === "MULTIPLE_CHOICE" && (
-        <div className="d-flex flex-column gap-2">
-          <div className="fw-semibold">Choices</div>
-          {q.choices.map((c, i) => (
-            <InputGroup key={i} className="mb-2">
-              <InputGroup.Checkbox
-                checked={!!c.isCorrect}
-                onChange={(e) =>
-                  updateChoice(i, { isCorrect: e.target.checked })
-                }
-                title="Correct?"
-              />
-              <Form.Control
-                value={c.text}
-                onChange={(e) => updateChoice(i, { text: e.target.value })}
-                placeholder={`Choice ${i + 1}`}
-              />
-              <Button
-                variant="outline-secondary"
-                onClick={() => removeChoice(i)}
-              >
-                Delete
-              </Button>
-            </InputGroup>
-          ))}
-          <Button variant="light" onClick={addChoice}>
-            + Add Choice
-          </Button>
-        </div>
-      )}
+{q.type === "MULTIPLE_CHOICE" && (
+  <div className="d-flex flex-column gap-2">
+    <div className="fw-semibold">Choices (single correct)</div>
+    {q.choices.map((c, i) => (
+      <InputGroup key={i} className="mb-2">
+        <Form.Check
+          type="radio"
+          name="mc-correct"
+          className="me-2"
+          checked={!!c.isCorrect}
+          onChange={(e) => updateChoice(i, {isCorrect: e.target.checked})}
+          title="Correct?"
+        />
+        <Form.Control
+          value={c.text}
+          onChange={(e) => updateChoice(i, { text: e.target.value })}
+          placeholder={`Choice ${i + 1}`}
+        />
+        <Button variant="outline-secondary" onClick={() => removeChoice(i)}>
+          Delete
+        </Button>
+      </InputGroup>
+    ))}
+    <Button variant="light" onClick={addChoice}>+ Add Choice</Button>
+  </div>
+)}
 
       {q.type === "TRUE_FALSE" && (
         <Form>
