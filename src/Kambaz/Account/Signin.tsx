@@ -18,6 +18,7 @@ export default function Signin() {
 
 
   return (
+    <div>
     <div id="wd-signin-screen" className="p-4" style={{ maxWidth: "400px", margin: "0 auto" }}>
       <h3 className="mb-4">Sign in</h3>
       <Form>
@@ -43,6 +44,34 @@ export default function Signin() {
           </Button>
         </Link>
       </Form>
+    </div>
+          <div className="mt-4">
+        <h5>Team members:</h5>
+        <ul>
+          <li>Kenneth Wan, CS5610 Summer 2 2025</li>
+          <li>Tongxiao Zhao, CS5610 Summer 2 2025</li>
+        </ul>
+        <p>
+          <strong>Frontend:</strong>{" "}
+          <a
+            href="https://github.com/paranoid0718/CS5610A1/tree/develop"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://github.com/paranoid0718/CS5610A1/tree/develop
+          </a>
+        </p>
+        <p>
+          <strong>Backend:</strong>{" "}
+          <a
+            href="https://github.com/paranoid0718/kambaz-node-server-app/tree/develop"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://github.com/paranoid0718/kambaz-node-server-app/tree/develop
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
