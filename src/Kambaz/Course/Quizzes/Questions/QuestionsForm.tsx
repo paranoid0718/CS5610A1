@@ -12,9 +12,10 @@ type Question = {
   quizId: string;
   type: QuestionType;
   title: string;
+  fields: number;
   points: number;
   choices: Choice[];
-  answer: string[];
+  answer: string[][];
 };
 
 export default function QuestionForm({
@@ -33,12 +34,13 @@ export default function QuestionForm({
     quizId: qid || "",
     type: "MULTIPLE_CHOICE",
     title: "",
+    fields: 1,
     points: 1,
     choices: [
       { text: "Option 1", isCorrect: true },
       { text: "Option 2", isCorrect: false },
     ],
-    answer: [],
+    answer: [[]],
   });
 
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function QuestionForm({
       editQ({
         type: t,
         choices: [],
-        answer: q.answer?.length ? q.answer : [""],
+        answer: q.answer?.length ? q.answer : [[""]],
       });
     }
   };
@@ -90,20 +92,20 @@ export default function QuestionForm({
     deletedChoice.splice(idx, 1);
     editQ({ choices: deletedChoice });
   };
-const updateChoice = (idx: number, patch: Partial<Choice>) => {
-  const nextChoices = q.choices.map((choice, i) => {
-    const merged = i === idx ? { ...choice, ...patch } : choice;
-    if ("isCorrect" in patch) {
-      return {
-        ...merged,
-        isCorrect: i === idx ? !!patch.isCorrect : false,
-      };
-    }
-    return merged;
-  });
+  const updateChoice = (idx: number, patch: Partial<Choice>) => {
+    const nextChoices = q.choices.map((choice, i) => {
+      const merged = i === idx ? { ...choice, ...patch } : choice;
+      if ("isCorrect" in patch) {
+        return {
+          ...merged,
+          isCorrect: i === idx ? !!patch.isCorrect : false,
+        };
+      }
+      return merged;
+    });
 
-  setQ({ ...q, choices: nextChoices });
-};
+    setQ({ ...q, choices: nextChoices });
+  };
 
   const setTrueFalse = (opt: "True" | "False") => {
     const updatedChoices = q.choices.map((choice) => ({
@@ -113,21 +115,41 @@ const updateChoice = (idx: number, patch: Partial<Choice>) => {
 
     editQ({
       choices: updatedChoices,
-      answer: [opt],
+      answer: [[opt]],
     });
   };
 
-  const addBlank = () => editQ({ answer: [...q.answer, ""] });
-  const removeBlank = (idx: number) => {
-    const deletedBlank = [...q.answer];
-    deletedBlank.splice(idx, 1);
-    editQ({ answer: deletedBlank });
+  // ---- Fill in the Blank (2D answers) ----
+  const addBlank = () => editQ({ answer: [...q.answer, [""]] });
+
+  const removeBlank = (rowIdx: number) => {
+    const updated = [...q.answer];
+    updated.splice(rowIdx, 1);
+    editQ({ answer: updated });
   };
-  const updateBlank = (idx: number, text: string) => {
-    const updatedAnswer = [...q.answer];
-    updatedAnswer[idx] = text;
-    editQ({ answer: updatedAnswer });
+
+  const addPossibleAnswer = (rowIdx: number) => {
+    const updated = [...q.answer];
+    updated[rowIdx] = [...updated[rowIdx], ""];
+    editQ({ answer: updated });
   };
+
+  const removePossibleAnswer = (rowIdx: number, colIdx: number) => {
+    const updated = [...q.answer];
+    updated[rowIdx] = updated[rowIdx].filter((_, i) => i !== colIdx);
+    editQ({ answer: updated });
+  };
+
+  const updatePossibleAnswer = (
+    rowIdx: number,
+    colIdx: number,
+    text: string
+  ) => {
+    const updated = [...q.answer];
+    updated[rowIdx][colIdx] = text;
+    editQ({ answer: updated });
+  };
+  // ---------------------------------------
 
   const handleSave = async () => {
     console.log(q);
@@ -136,6 +158,7 @@ const updateChoice = (idx: number, patch: Partial<Choice>) => {
       quizId: q.quizId,
       type: q.type,
       title: q.title,
+      fields: q.fields,
       points: Number(q.points) || 0,
       choices: q.choices,
       answer:
@@ -189,6 +212,20 @@ const updateChoice = (idx: number, patch: Partial<Choice>) => {
         />
       </Form.Group>
 
+      {q.type === "FILL_IN_BLANK" ? (
+        <Form.Group style={{ maxWidth: 180 }}>
+          <Form.Label>Number of Fields</Form.Label>
+          <Form.Control
+            type="number"
+            min={0}
+            value={q.fields}
+            onChange={(e) => editQ({ fields: Number(e.target.value) || 0 })}
+          />
+        </Form.Group>
+      ) : (
+        <></>
+      )}
+
       <Form.Group style={{ maxWidth: 180 }}>
         <Form.Label>Points</Form.Label>
         <Form.Control
@@ -199,32 +236,39 @@ const updateChoice = (idx: number, patch: Partial<Choice>) => {
         />
       </Form.Group>
 
-{q.type === "MULTIPLE_CHOICE" && (
-  <div className="d-flex flex-column gap-2">
-    <div className="fw-semibold">Choices (single correct)</div>
-    {q.choices.map((c, i) => (
-      <InputGroup key={i} className="mb-2">
-        <Form.Check
-          type="radio"
-          name="mc-correct"
-          className="me-2"
-          checked={!!c.isCorrect}
-          onChange={(e) => updateChoice(i, {isCorrect: e.target.checked})}
-          title="Correct?"
-        />
-        <Form.Control
-          value={c.text}
-          onChange={(e) => updateChoice(i, { text: e.target.value })}
-          placeholder={`Choice ${i + 1}`}
-        />
-        <Button variant="outline-secondary" onClick={() => removeChoice(i)}>
-          Delete
-        </Button>
-      </InputGroup>
-    ))}
-    <Button variant="light" onClick={addChoice}>+ Add Choice</Button>
-  </div>
-)}
+      {q.type === "MULTIPLE_CHOICE" && (
+        <div className="d-flex flex-column gap-2">
+          <div className="fw-semibold">Choices (single correct)</div>
+          {q.choices.map((c, i) => (
+            <InputGroup key={i} className="mb-2">
+              <Form.Check
+                type="radio"
+                name="mc-correct"
+                className="me-2"
+                checked={!!c.isCorrect}
+                onChange={(e) =>
+                  updateChoice(i, { isCorrect: e.target.checked })
+                }
+                title="Correct?"
+              />
+              <Form.Control
+                value={c.text}
+                onChange={(e) => updateChoice(i, { text: e.target.value })}
+                placeholder={`Choice ${i + 1}`}
+              />
+              <Button
+                variant="outline-secondary"
+                onClick={() => removeChoice(i)}
+              >
+                Delete
+              </Button>
+            </InputGroup>
+          ))}
+          <Button variant="light" onClick={addChoice}>
+            + Add Choice
+          </Button>
+        </div>
+      )}
 
       {q.type === "TRUE_FALSE" && (
         <Form>
@@ -243,28 +287,50 @@ const updateChoice = (idx: number, patch: Partial<Choice>) => {
       )}
 
       {q.type === "FILL_IN_BLANK" && (
-        <div className="d-flex flex-column gap-2">
-          <div className="fw-semibold">Possible Answers</div>
-          {(q.answer.length ? q.answer : [""]).map((a, i) => (
-            <InputGroup key={i} className="mb-2">
-              <Form.Control
-                value={a}
-                onChange={(e) => updateBlank(i, e.target.value)}
-                placeholder={`Answer ${i + 1}`}
-              />
+        <div className="d-flex flex-column gap-3">
+          {q.answer.map((row, rowIdx) => (
+            <div key={rowIdx} className="border rounded p-2">
+              <div className="fw-semibold mb-2">Blank {rowIdx + 1}</div>
+              {row.map((ans, colIdx) => (
+                <InputGroup key={colIdx} className="mb-2">
+                  <Form.Control
+                    value={ans}
+                    onChange={(e) =>
+                      updatePossibleAnswer(rowIdx, colIdx, e.target.value)
+                    }
+                    placeholder={`Possible Answer ${colIdx + 1}`}
+                  />
+                  <Button
+                    variant="outline-secondary"
+                    onClick={() => removePossibleAnswer(rowIdx, colIdx)}
+                  >
+                    Delete
+                  </Button>
+                </InputGroup>
+              ))}
               <Button
-                variant="outline-secondary"
-                onClick={() => removeBlank(i)}
+                variant="light"
+                size="sm"
+                onClick={() => addPossibleAnswer(rowIdx)}
               >
-                Delete
+                + Add Possible Answer
               </Button>
-            </InputGroup>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                className="ms-2"
+                onClick={() => removeBlank(rowIdx)}
+              >
+                Delete Blank
+              </Button>
+            </div>
           ))}
           <Button variant="light" onClick={addBlank}>
-            + Add Answer
+            + Add Blank
           </Button>
         </div>
       )}
+
       <hr />
       <div className="d-flex justify-content-center gap-3 mt-3">
         <Button variant="light" onClick={handleCancel}>

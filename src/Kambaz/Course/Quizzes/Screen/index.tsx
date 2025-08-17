@@ -22,16 +22,25 @@ export default function QuizScreen() {
     const formElements = document.querySelectorAll(
       'input[type="radio"]:checked, input[type="checkbox"]:checked, input[type="text"]'
     );
-    const answers = Array.from(formElements).map((el: any) => ({
-      questionId: el.name,
-      choice: el.value,
-    }));
+
+    // capture multiple blanks correctly
+    const answers: any[] = [];
+    formElements.forEach((el: any) => {
+      const [qid, blankIdx] = el.name.split(":"); // e.g. "questionId:0"
+      answers.push({
+        questionId: qid,
+        blankIndex: blankIdx ? Number(blankIdx) : undefined,
+        choice: el.value,
+      });
+    });
+
     const attempt = {
       course: cid,
       user: currentUser._id,
       quiz: qid,
       answers,
     };
+
     const response = await attemptClient.addAttempt(attempt);
     navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/Results/${response._id}`);
   };
@@ -50,18 +59,27 @@ export default function QuizScreen() {
         {questions.map((question: any, index: number) => (
           <Card key={question._id}>
             <Card.Header className="d-flex justify-content-between">
-              <div>Question{index + 1}.</div>
+              <div>Question {index + 1}.</div>
               <div>{question.points} pts</div>
             </Card.Header>
             <Card.Body>
               {question.title}
 
+              {/* --------- Fill in the Blank --------- */}
               {question.type === "FILL_IN_BLANK" && (
-                <Form className="mt-2">
-                  <Form.Control type="text" name={question._id} />
+                <Form className="mt-2 d-flex flex-column gap-2">
+                  {Array.from({ length: question.fields }).map((_, i) => (
+                    <Form.Control
+                      key={i}
+                      type="text"
+                      name={`${question._id}:${i}`} // unique per blank
+                      placeholder={`Blank ${i + 1}`}
+                    />
+                  ))}
                 </Form>
               )}
 
+              {/* --------- True/False --------- */}
               {question.type === "TRUE_FALSE" && (
                 <Form className="mt-2">
                   {question.choices.map((choice: any, i: number) => (
@@ -77,6 +95,7 @@ export default function QuizScreen() {
                 </Form>
               )}
 
+              {/* --------- Multiple Choice --------- */}
               {question.type === "MULTIPLE_CHOICE" && (
                 <Form className="mt-2">
                   {question.choices.map((choice: any, i: number) => (
