@@ -46,6 +46,7 @@ export default function Signin() {
       </Form>
     </div>
           <div className="mt-4">
+          <h5>Project: Kambaz Quizzes</h5>
         <h5>Team members:</h5>
         <ul>
           <li>Kenneth Wan, CS5610 Summer 2 2025</li>
