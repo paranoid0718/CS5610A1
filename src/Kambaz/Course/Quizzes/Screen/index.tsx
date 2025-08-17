@@ -23,10 +23,9 @@ export default function QuizScreen() {
       'input[type="radio"]:checked, input[type="checkbox"]:checked, input[type="text"]'
     );
 
-    // capture multiple blanks correctly
     const answers: any[] = [];
     formElements.forEach((el: any) => {
-      const [qid, blankIdx] = el.name.split(":"); // e.g. "questionId:0"
+      const [qid, blankIdx] = el.name.split(":"); 
       answers.push({
         questionId: qid,
         blankIndex: blankIdx ? Number(blankIdx) : undefined,
@@ -65,21 +64,19 @@ export default function QuizScreen() {
             <Card.Body>
               {question.title}
 
-              {/* --------- Fill in the Blank --------- */}
               {question.type === "FILL_IN_BLANK" && (
                 <Form className="mt-2 d-flex flex-column gap-2">
                   {Array.from({ length: question.fields }).map((_, i) => (
                     <Form.Control
                       key={i}
                       type="text"
-                      name={`${question._id}:${i}`} // unique per blank
+                      name={`${question._id}:${i}`} 
                       placeholder={`Blank ${i + 1}`}
                     />
                   ))}
                 </Form>
               )}
 
-              {/* --------- True/False --------- */}
               {question.type === "TRUE_FALSE" && (
                 <Form className="mt-2">
                   {question.choices.map((choice: any, i: number) => (
@@ -95,7 +92,6 @@ export default function QuizScreen() {
                 </Form>
               )}
 
-              {/* --------- Multiple Choice --------- */}
               {question.type === "MULTIPLE_CHOICE" && (
                 <Form className="mt-2">
                   {question.choices.map((choice: any, i: number) => (
